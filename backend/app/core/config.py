@@ -19,7 +19,11 @@ class Settings(BaseSettings):
     app_env: str = "development"
     app_name: str = "Autonomous Business Builder"
     app_version: str = "0.3.0"
-    trusted_hosts_raw: str = Field(default="localhost,127.0.0.1,backend,test,testserver", alias="TRUSTED_HOSTS")
+    trusted_hosts_raw: str = Field(
+        default="localhost,127.0.0.1,backend,test,testserver,*.vercel.app,*.onrender.com",
+        alias="TRUSTED_HOSTS",
+    )
+    enable_trusted_host_middleware: bool = True
     secure_cookies: bool = False
     metrics_enabled: bool = True
     metrics_path: str = "/metrics"
@@ -135,6 +139,7 @@ class Settings(BaseSettings):
     browser_synthesis_timeout_seconds: float = 40.0
     browser_planner_num_predict: int = 180
     browser_planner_keep_alive: str = "-1m"
+    enable_campaign_scheduler: bool | None = None
 
     # ── Image Generation ──────────────────────────────────────────────────────
     openai_api_key: str | None = None
@@ -171,6 +176,12 @@ class Settings(BaseSettings):
     def redis_available(self) -> bool:
         """True when a real Redis URL is configured (not the default localhost)."""
         return self.redis_url != "redis://localhost:6379/0" or self.is_production
+
+    @property
+    def should_run_campaign_scheduler(self) -> bool:
+        if self.enable_campaign_scheduler is not None:
+            return self.enable_campaign_scheduler
+        return not self.is_production
 
     @property
     def resolved_database_url(self) -> str:
