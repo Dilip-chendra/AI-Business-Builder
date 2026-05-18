@@ -56,6 +56,17 @@ def do_run_migrations(connection: Connection) -> None:
 async def run_async_migrations() -> None:
     """Run migrations using an async engine."""
     url = _get_url()
+
+    # Normalise the URL scheme so SQLAlchemy uses the asyncpg driver.
+    # Railway (and most providers) supply postgresql:// URLs, but
+    # async_engine_from_config requires postgresql+asyncpg://.
+    if url.startswith("postgres://"):
+        url = url.replace("postgres://", "postgresql+asyncpg://", 1)
+    elif url.startswith("postgresql://"):
+        url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    elif url.startswith("postgresql+psycopg2://"):
+        url = url.replace("postgresql+psycopg2://", "postgresql+asyncpg://", 1)
+
     # Build a minimal config dict for the async engine.
     cfg = config.get_section(config.config_ini_section, {})
     cfg["sqlalchemy.url"] = url
