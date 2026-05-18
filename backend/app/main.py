@@ -76,7 +76,7 @@ async def lifespan(app: FastAPI):
     logger.info("Docs: %s/api/docs", settings.backend_url)
 
     scheduler_task = None
-    if not settings.is_production:
+    if settings.should_run_campaign_scheduler:
         scheduler_task = asyncio.create_task(campaign_scheduling_task(), name="campaign-scheduler")
 
     from app.services.ai_service import AIService
@@ -121,7 +121,8 @@ if settings.metrics_enabled:
 
 app.add_middleware(RequestIDMiddleware)
 app.add_middleware(GZipMiddleware, minimum_size=1024)
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.trusted_hosts or ["*"])
+if settings.enable_trusted_host_middleware:
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.trusted_hosts or ["*"])
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -185,6 +186,7 @@ app.include_router(api_router, prefix="/api/v1")
 uploads_dir = Path("uploads")
 uploads_dir.mkdir(exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")
+app.mount("/api/uploads", StaticFiles(directory=str(uploads_dir)), name="api-uploads")
 
 
 @app.get("/health", tags=["health"])
@@ -195,6 +197,11 @@ async def health_check() -> dict[str, str]:
         "version": app.version,
         "env": settings.app_env,
     }
+
+
+@app.get("/api/health", tags=["health"], include_in_schema=False)
+async def api_health_check() -> dict[str, str]:
+    return await health_check()
 
 
 @app.get("/ready", tags=["health"])
@@ -219,3 +226,8 @@ async def readiness_check():
         status_code=status.HTTP_200_OK if ready else status.HTTP_503_SERVICE_UNAVAILABLE,
         content=payload,
     )
+
+
+@app.get("/api/ready", tags=["health"], include_in_schema=False)
+async def api_readiness_check():
+    return await readiness_check()
