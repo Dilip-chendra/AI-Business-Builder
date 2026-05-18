@@ -1,9 +1,9 @@
 {
-  "backend_pid": 9052,
-  "frontend_pid": 3132,
+  "backend_pid": 3576,
+  "frontend_pid": 7500,
   "ollama_pid": null,
   "backend_log": "C:\\Users\\admin\\Downloads\\Autonomous Business Builder\\.runtime\\logs\\backend.log",
   "frontend_log": "C:\\Users\\admin\\Downloads\\Autonomous Business Builder\\.runtime\\logs\\frontend.log",
-  "started_at": 1779089995,
+  "started_at": 1779093441,
   "dev_mode": false
 }
