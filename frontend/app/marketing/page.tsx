@@ -13,7 +13,6 @@ import { useActiveContext } from "@/lib/active-context";
 import { cleanDisplayText, truncateClean } from "@/lib/text";
 import { useToast } from "@/components/Toast";
 import { JobProgress } from "@/components/JobProgress";
-import VpsRequiredModal from "@/components/VpsRequiredModal";
 import { IntegrationSetupModal } from "@/components/marketing/IntegrationSetupModal";
 import { IntegrationAccountModal, type IntegrationAccountModalState } from "@/components/marketing/IntegrationAccountModal";
 import useJobStart from "@/hooks/useJobStart";
@@ -334,16 +333,54 @@ function MarketingPageInner() {
 
   // Engine tab
   const [goal, setGoal] = useState("");
-  const [contentGoal, setContentGoal] = useState("");
   const [budget, setBudget] = useState("100");
   const [platforms, setPlatforms] = useState<string[]>(["email", "linkedin", "twitter"]);
   const [running, setRunning] = useState(false);
   const [agentEvents, setAgentEvents] = useState<AgentEvent[]>([]);
   const [browserPreview, setBrowserPreview] = useState<BrowserPreview | null>(null);
+  const esRef = useRef<EventSource | null>(null);
+  const logRef = useRef<HTMLDivElement>(null);
+
+  // Campaigns tab
+  const [campaigns, setCampaigns] = useState<MarketingCampaign[]>([]);
+  const [campaignsLoading, setCampaignsLoading] = useState(false);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [approving, setApproving] = useState<string | null>(null);
+  const [publishing, setPublishing] = useState<string | null>(null);
+  const [generatingImage, setGeneratingImage] = useState<string | null>(null);
+  const [cardImages, setCardImages] = useState<Record<string, string>>({});
+
+  // Content Studio tab
+  const [contentType, setContentType] = useState("linkedin_post");
+  const [tone, setTone] = useState("Professional");
+  const [audience, setAudience] = useState("");
+  const [cta, setCta] = useState("Learn More");
+  const [contentGoal, setContentGoal] = useState("");
+  const [generatingContent, setGeneratingContent] = useState(false);
+  const [generatedContent, setGeneratedContent] = useState<any | null>(null);
+
+  // Analytics tab
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
+
+  // Integrations tab
+  const [integrations, setIntegrations] = useState<IntegrationStatus[]>([]);
+  const [integrationsLoading, setIntegrationsLoading] = useState(false);
+  const [integrationAccounts, setIntegrationAccounts] = useState<Record<string, IntegrationAccount>>({});
+  const [integrationAccountsLoading, setIntegrationAccountsLoading] = useState(false);
+  const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
+  const [savingKey, setSavingKey] = useState<string | null>(null);
+  const [integrationSetup, setIntegrationSetup] = useState<IntegrationSetupState | null>(null);
+  const [savingIntegrationSetup, setSavingIntegrationSetup] = useState(false);
+  const [accountModal, setAccountModal] = useState<IntegrationAccountModalState | null>(null);
+  const [savingAccount, setSavingAccount] = useState<string | null>(null);
+  const [testingAccount, setTestingAccount] = useState<string | null>(null);
+  const [deletingAccount, setDeletingAccount] = useState<string | null>(null);
+  const [emailSendModal, setEmailSendModal] = useState<{ campaignId: string; recipients: string } | null>(null);
+  const [scheduleModal, setScheduleModal] = useState<{ campaignId: string; platform: string; scheduledAt: string } | null>(null);
+  const [rejectModal, setRejectModal] = useState<{ campaignId: string; reason: string } | null>(null);
   const [browserRun, setBrowserRun] = useState<{ runId: string; campaignId: string; platform: string; awaitingConfirmation: boolean } | null>(null);
   const [confirmingPublish, setConfirmingPublish] = useState(false);
-  const [showVpsModal, setShowVpsModal] = useState(false);
-  const [vpsFeature, setVpsFeature] = useState("");
 
   // Calendar tab
   const [calendarPosts, setCalendarPosts] = useState<CalendarPost[]>([]);
@@ -770,10 +807,82 @@ function MarketingPageInner() {
         return;
       }
 
-      setPublishing(null);
-      setVpsFeature(`Browser-based publishing to ${platform}`);
-      setShowVpsModal(true);
-      return;
+      const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : "";
+      if (!token) {
+        toast.error("You need to sign in again before publishing.");
+        return;
+      }
+
+      if (esRef.current) {
+        esRef.current.close();
+        esRef.current = null;
+      }
+
+      setTab("engine");
+      setGoal(`Publish ${platform} campaign`);
+      setRunning(true);
+      setError(null);
+      setAgentEvents([]);
+      setBrowserPreview({
+        platform,
+        status: "launching",
+        lastAction: "Preparing live browser session",
+      });
+      keepPublishingState = true;
+
+      const params = new URLSearchParams({ token });
+      const streamUrl = `${API_URL}/marketing/${businessId}/campaigns/${campaignId}/browser-stream/${platform}?${params}`;
+      const es = new EventSource(streamUrl);
+      esRef.current = es;
+
+      es.onmessage = (e) => {
+        try {
+          const raw = JSON.parse(e.data);
+          if (raw.type === "start" && raw.run_id) {
+            setBrowserRun({ runId: raw.run_id, campaignId, platform, awaitingConfirmation: false });
+          }
+          updateBrowserPreview(raw, platform);
+          const normalized = normalizeBrowserEvent(raw, platform);
+          if (normalized) {
+            setAgentEvents(prev => [...prev, normalized]);
+          }
+
+          if (raw.type === "status" && raw.status === "awaiting_final_confirmation" && raw.run_id) {
+            setBrowserRun({ runId: raw.run_id, campaignId, platform, awaitingConfirmation: true });
+            setCampaigns(prev => prev.map(c => c.id === campaignId ? { ...c, status: "awaiting_final_confirmation", lifecycle_status: "awaiting_final_confirmation" } : c));
+            toast.info(`The ${platform} draft is ready. Review it and confirm the final publish step when you're ready.`);
+          }
+
+          if (raw.type === "done") {
+            setRunning(false);
+            es.close();
+            esRef.current = null;
+            setPublishing(null);
+            if (raw.status === "done") {
+              toast.success(`Browser automation completed the ${platform} publish flow.`);
+              setCampaigns(prev => prev.map(c => c.id === campaignId ? { ...c, status: "published", lifecycle_status: "published" } : c));
+              setBrowserRun(null);
+            } else if (raw.status === "stopped") {
+              toast.info(`The ${platform} browser flow was stopped before the final publish click.`);
+              setBrowserRun(null);
+            } else {
+              toast.error(`Publishing to ${platform} did not complete.`);
+              setBrowserRun(null);
+            }
+            loadCampaigns();
+          }
+        } catch {
+          setError("Could not read browser publish event stream.");
+        }
+      };
+
+      es.onerror = () => {
+        setRunning(false);
+        es.close();
+        esRef.current = null;
+        setPublishing(null);
+        setError(`The ${platform} browser publish stream disconnected.`);
+      };
     } catch (e: any) {
       toast.error("Publish failed: " + (e.message || "Unknown error"));
     } finally {
@@ -2660,11 +2769,6 @@ function MarketingPageInner() {
         }
       `}</style>
 
-      <VpsRequiredModal
-        open={showVpsModal}
-        onClose={() => setShowVpsModal(false)}
-        feature={vpsFeature}
-      />
     </div>
   );
 }

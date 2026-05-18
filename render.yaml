@@ -6,44 +6,54 @@ databases:
     region: oregon
 
 services:
-  # ── Backend API (Render Free ≤ 512MB RAM) ──────────────────────────────────
+  - type: keyvalue
+    name: ai-business-builder-cache
+    plan: free
+    region: oregon
+    maxmemoryPolicy: noeviction
+    ipAllowList: []
+
   - type: web
     name: ai-business-builder-api
-    runtime: python
+    runtime: docker
     plan: free
     region: oregon
     autoDeploy: false
-    rootDir: backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: >
-      alembic upgrade head &&
-      gunicorn app.main:app -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --workers 1 --timeout 120
-    healthCheckPath: /health
+    dockerContext: .
+    dockerfilePath: ./backend/Dockerfile
+    healthCheckPath: /ready
+    maxShutdownDelaySeconds: 60
+    preDeployCommand: alembic upgrade head
     envVars:
-      # ── Deployment mode (disables Ollama, browser agent, Celery, heavy workers) ──
-      - key: DEPLOYMENT_MODE
-        value: render_eval
       - key: APP_ENV
         value: production
-
-      # ── Database (Render PostgreSQL) ──────────────────────────────────────────
       - key: DATABASE_URL
         fromDatabase:
           name: ai-business-builder-db
           property: connectionString
-
-      # ── Redis (optional — uses in-memory fallback when unavailable) ────────────
       - key: REDIS_URL
         fromService:
           type: keyvalue
           name: ai-business-builder-cache
           property: connectionString
-      - key: REDIS_HEALTHCHECK_ENABLED
-        value: "true"
-
-      # ── AI providers (API-based only — Ollama disabled in render_eval) ─────────
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: keyvalue
+          name: ai-business-builder-cache
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          type: keyvalue
+          name: ai-business-builder-cache
+          property: connectionString
       - key: FEATHERLESS_ENABLED
         value: "true"
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: ENCRYPTION_KEY
+        sync: false
+      - key: FEATHERLESS_API_KEY
+        sync: false
       - key: FEATHERLESS_BASE_URL
         value: https://api.featherless.ai/v1
       - key: FEATHERLESS_GENERAL_MODEL
@@ -54,30 +64,16 @@ services:
         value: deepseek-ai/DeepSeek-V3-0324
       - key: FEATHERLESS_MARKETING_MODEL
         value: deepseek-ai/DeepSeek-V3-0324
-      - key: FEATHERLESS_API_KEY
-        sync: false
+      - key: FEATHERLESS_BROWSER_MODEL
+        value: deepseek-ai/DeepSeek-V3-0324
       - key: GROQ_API_KEY
         sync: false
       - key: HF_API_KEY
         sync: false
-
-      # ── Security ──────────────────────────────────────────────────────────────
-      - key: JWT_SECRET_KEY
-        generateValue: true
-      - key: SECURE_COOKIES
-        value: "true"
-
-      # ── URLs — update FRONTEND_URL to your Vercel deployment ──────────────────
-      - key: FRONTEND_URL
+      - key: OPENAI_API_KEY
         sync: false
-      - key: BACKEND_URL
+      - key: STABILITY_API_KEY
         sync: false
-      - key: CORS_ORIGINS
-        sync: false
-      - key: TRUSTED_HOSTS
-        sync: false
-
-      # ── Payments (sandbox) ────────────────────────────────────────────────────
       - key: PAYPAL_CLIENT_ID
         sync: false
       - key: PAYPAL_CLIENT_SECRET
@@ -86,8 +82,24 @@ services:
         value: sandbox
       - key: PAYPAL_WEBHOOK_ID
         sync: false
-
-      # ── Email (optional) ──────────────────────────────────────────────────────
+      - key: LINKEDIN_CLIENT_ID
+        sync: false
+      - key: LINKEDIN_CLIENT_SECRET
+        sync: false
+      - key: LINKEDIN_REDIRECT_URI
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: BACKEND_URL
+        sync: false
+      - key: APP_BASE_URL
+        sync: false
+      - key: API_BASE_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: TRUSTED_HOSTS
+        sync: false
       - key: SMTP_USERNAME
         sync: false
       - key: SMTP_PASSWORD
@@ -96,26 +108,34 @@ services:
         value: noreply@autonomousbusiness.ai
       - key: EMAIL_FROM_NAME
         value: Autonomous Business Builder
-
-      # ── Feature flags (auto-set by DEPLOYMENT_MODE, override if needed) ──────
-      - key: ENABLE_OLLAMA
-        value: "false"
-      - key: ENABLE_BROWSER_AGENT
-        value: "false"
-      - key: ENABLE_HEAVY_WORKERS
-        value: "false"
-      - key: ENABLE_API_AI_PROVIDERS
-        value: "true"
-
-      # ── Overrides for render_eval safety ──────────────────────────────────────
-      - key: BROWSER_HEADLESS
-        value: "true"
       - key: OLLAMA_BASE_URL
         value: http://localhost:11434
+      - key: REDIS_HEALTHCHECK_ENABLED
+        value: "true"
+      - key: SECURE_COOKIES
+        value: "true"
+      - key: BROWSER_HEADLESS
+        value: "true"
 
-  - type: keyvalue
-    name: ai-business-builder-cache
+  - type: web
+    name: ai-business-builder-web
+    runtime: node
     plan: free
     region: oregon
-    maxmemoryPolicy: noeviction
-    ipAllowList: []
+    autoDeploy: false
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start -- --hostname 0.0.0.0 --port $PORT
+    healthCheckPath: /login
+    envVars:
+      - key: NODE_VERSION
+        value: 20.19.0
+      - key: NEXT_PUBLIC_API_URL
+        value: /api/v1
+      - key: BACKEND_HOSTPORT
+        fromService:
+          type: web
+          name: ai-business-builder-api
+          property: hostport
+      - key: NEXT_PUBLIC_PAYPAL_CLIENT_ID
+        sync: false

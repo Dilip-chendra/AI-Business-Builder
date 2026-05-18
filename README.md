@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Autonomous Business Builder — AI-Native SaaS Platform
 
 A production-grade, multi-agent AI SaaS platform that generates, launches, and autonomously optimises online businesses.
@@ -210,3 +211,7 @@ If you need the closest always-online free evaluation path, use Render’s free 
 
 This path is suitable for demos and evaluation, but Render’s own docs say free instances are **not for production** and may sleep or restart:
 [Render free docs](https://render.com/docs/free)
+=======
+# AI-Business-Builder
+AI Business Builder is an autonomous AI-powered business operating system that combines AI workflows, browser agents, marketing automation, AI code editing, analytics, and business generation into one platform. Built using Next.js, FastAPI, Playwright, Ollama, Groq, and multi-model AI orchestration.
+>>>>>>> parent of 04bca5e (Update)

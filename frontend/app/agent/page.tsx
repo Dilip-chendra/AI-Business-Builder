@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Bot, Globe, Zap, CheckCircle, XCircle, Loader2, ChevronDown, ChevronRight, AlertTriangle, Play, DollarSign, BookOpen, Clock } from "lucide-react";
 import { api } from "@/lib/api";
-import VpsRequiredModal from "@/components/VpsRequiredModal";
 
 type Step = { step: number; action: string; params: Record<string, unknown>; result: unknown; success: boolean; reason: string };
 type RunResult = { run_id: string; goal: string; status: string; steps: Step[]; result: string | null; error: string | null; sources: string[]; cost_summary: Record<string, unknown>; started_at: string; finished_at: string | null };
@@ -159,7 +158,6 @@ export default function AgentPage() {
   const [result, setResult] = useState<RunResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
-  const [showVpsModal, setShowVpsModal] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -209,7 +207,7 @@ export default function AgentPage() {
         ]).map(({ id, icon: Icon, label, desc }) => (
           <button
             key={id}
-            onClick={() => id === "browser" ? setShowVpsModal(true) : setMode(id)}
+            onClick={() => setMode(id)}
             style={{
               display: "flex", alignItems: "flex-start", gap: 12,
               borderRadius: 16, border: `2px solid ${mode === id ? "#6366f1" : "#e2e8f0"}`,
@@ -409,11 +407,6 @@ export default function AgentPage() {
           )}
         </div>
       )}
-      <VpsRequiredModal
-        open={showVpsModal}
-        onClose={() => setShowVpsModal(false)}
-        feature="Browser-based web research"
-      />
     </div>
   );
 }

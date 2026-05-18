@@ -16,7 +16,6 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user, get_db
-from app.core.config import settings
 from app.models.agent import AgentLog
 from app.models.user import User
 from app.services.business_service import BusinessService
@@ -70,12 +69,6 @@ async def run_agent(
     Set ``use_browser=true`` to enable web research capabilities.
     """
     # Verify business ownership if business_id provided
-    if payload.use_browser and not settings.should_enable_browser_agent:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Browser agent is disabled in the current deployment mode. "
-                   "Deploy the full stack on a VPS to use this feature.",
-        )
     if payload.business_id:
         business = await BusinessService(db).get(
             UUID(payload.business_id), user_id=current_user.id
@@ -131,12 +124,6 @@ async def run_browser_agent(
     - "Research trending digital products in the productivity niche"
     - "Find SEO keywords for fitness coaching businesses"
     """
-    if not settings.should_enable_browser_agent:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Browser agent is disabled in the current deployment mode. "
-                   "Deploy the full stack on a VPS to use this feature.",
-        )
     if payload.business_id:
         business = await BusinessService(db).get(
             UUID(payload.business_id), user_id=current_user.id
