@@ -1,0 +1,8 @@
+{
+  "backend_requirements_mtime": 1778509432.4634917,
+  "frontend_deps_mtime": 1778554341.6601026,
+  "playwright_requirements_mtime": 1778509432.4634917,
+  "backend_requirements_hash": "f88aad305dc448cda1a2590547a0232732eac3ba32ebbdc87e949fb693a9a6a5",
+  "frontend_deps_hash": "34e0dbf6ec08725ffa11eeb8b3e16bcb80643079eb8215f45c999d1fb3e48769",
+  "playwright_requirements_hash": "f88aad305dc448cda1a2590547a0232732eac3ba32ebbdc87e949fb693a9a6a5"
+}
