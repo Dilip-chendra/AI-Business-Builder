@@ -87,7 +87,7 @@ class _RedisCache:
             self._client = client
             logger.info("Redis cache connected at %s", settings.redis_url)
         except Exception as exc:
-            if settings.is_production:
+            if settings.is_production and not settings.is_render_eval:
                 raise RuntimeError(
                     f"Redis is required in production but unavailable: {exc}"
                 ) from exc

@@ -28,6 +28,17 @@ class Settings(BaseSettings):
     metrics_enabled: bool = True
     metrics_path: str = "/metrics"
 
+    # ── Deployment mode ─────────────────────────────────────────────────────
+    # Options: development, production, render_eval
+    # render_eval = lightweight mode for Render Free (512MB limit)
+    deployment_mode: str = Field(default="development", alias="DEPLOYMENT_MODE")
+    # Feature flags — auto-set by deployment_mode, but can be overridden via env vars
+    # These map to ENABLE_OLLAMA, ENABLE_BROWSER_AGENT, etc.
+    enable_ollama: bool | None = Field(default=None, alias="ENABLE_OLLAMA")
+    enable_browser_agent: bool | None = Field(default=None, alias="ENABLE_BROWSER_AGENT")
+    enable_heavy_workers: bool | None = Field(default=None, alias="ENABLE_HEAVY_WORKERS")
+    enable_api_ai_providers: bool | None = Field(default=None, alias="ENABLE_API_AI_PROVIDERS")
+
     # ── Database ─────────────────────────────────────────────────────────────
     database_url: str = "sqlite+aiosqlite:///./autonomous_builder.db"
     database_pool_size: int = 10
@@ -161,6 +172,10 @@ class Settings(BaseSettings):
     meta_ads_client_secret: str | None = None
 
     @property
+    def is_render_eval(self) -> bool:
+        return self.deployment_mode == "render_eval"
+
+    @property
     def cors_origins(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins_raw.split(",") if origin.strip()]
 
@@ -175,12 +190,41 @@ class Settings(BaseSettings):
     @property
     def redis_available(self) -> bool:
         """True when a real Redis URL is configured (not the default localhost)."""
+        if self.is_render_eval:
+            # In render_eval mode, Redis is optional — fall back to in-memory
+            return self.redis_url not in ("redis://localhost:6379/0", "")
         return self.redis_url != "redis://localhost:6379/0" or self.is_production
+
+    @property
+    def should_enable_ollama(self) -> bool:
+        if self.enable_ollama is not None:
+            return self.enable_ollama
+        return not self.is_render_eval
+
+    @property
+    def should_enable_browser_agent(self) -> bool:
+        if self.enable_browser_agent is not None:
+            return self.enable_browser_agent
+        return not self.is_render_eval
+
+    @property
+    def should_enable_heavy_workers(self) -> bool:
+        if self.enable_heavy_workers is not None:
+            return self.enable_heavy_workers
+        return not self.is_render_eval
+
+    @property
+    def should_enable_api_ai_providers(self) -> bool:
+        if self.enable_api_ai_providers is not None:
+            return self.enable_api_ai_providers
+        return True
 
     @property
     def should_run_campaign_scheduler(self) -> bool:
         if self.enable_campaign_scheduler is not None:
             return self.enable_campaign_scheduler
+        if self.is_render_eval:
+            return False
         return not self.is_production
 
     @property

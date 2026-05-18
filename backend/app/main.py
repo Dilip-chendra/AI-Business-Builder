@@ -59,6 +59,8 @@ async def _check_redis() -> tuple[bool, str]:
 
 
 async def _check_ollama() -> tuple[bool, str]:
+    if not settings.should_enable_ollama:
+        return False, "disabled (deployment mode)"
     try:
         import httpx
 
@@ -73,7 +75,11 @@ async def _check_ollama() -> tuple[bool, str]:
 async def lifespan(app: FastAPI):
     logger.info("%s API v%s starting", settings.app_name, settings.app_version)
     logger.info("Environment: %s", settings.app_env)
+    logger.info("Deployment mode: %s", settings.deployment_mode)
     logger.info("Docs: %s/api/docs", settings.backend_url)
+
+    if settings.is_render_eval:
+        logger.info("Render Free mode: heavy services disabled (Ollama, browser agent, workers)")
 
     scheduler_task = None
     if settings.should_run_campaign_scheduler:
@@ -96,7 +102,7 @@ async def lifespan(app: FastAPI):
     if scheduler_task:
         scheduler_task.cancel()
         with contextlib.suppress(asyncio.CancelledError):
-            await scheduler_task
+                await scheduler_task
 
 
 app = FastAPI(

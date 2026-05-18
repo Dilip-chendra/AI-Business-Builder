@@ -12,6 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user, get_db
+from app.core.config import settings
 from app.models.user import User
 from app.schemas.analytics import AnalyticsEventCreate
 from app.services.ai_service import AIProviderError
@@ -1005,6 +1006,12 @@ async def stream_browser_publish(
     db: AsyncSession = Depends(get_db),
 ) -> StreamingResponse:
     """Stream a real browser-based publish run directly to the marketing UI."""
+    if not settings.should_enable_browser_agent:
+        async def _vps_error():
+            yield f"data: {json.dumps({'type': 'error', 'message': 'Browser agent is disabled in the current deployment mode. Deploy the full stack on a VPS to use this feature.'})}\n\n"
+            yield f"data: {json.dumps({'type': 'done', 'status': 'failed'})}\n\n"
+        return StreamingResponse(_vps_error(), media_type="text/event-stream")
+
     from app.core.security import decode_access_token
     from app.models.marketing import MarketingCampaign
     from app.services.browser_agent.browser_agent import BrowserAgent

@@ -711,6 +711,8 @@ class AIService:
 
     async def _ollama_available(self) -> bool:
         """Return True if Ollama is reachable. Never raises."""
+        if not settings.should_enable_ollama:
+            return False
         try:
             async with httpx.AsyncClient(timeout=2.0) as client:
                 r = await client.get(f"{settings.ollama_base_url.rstrip('/')}/api/tags")
