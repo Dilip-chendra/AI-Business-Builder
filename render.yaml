@@ -1,0 +1,141 @@
+databases:
+  - name: ai-business-builder-db
+    databaseName: ai_business_builder
+    user: abb
+    plan: free
+    region: oregon
+
+services:
+  - type: keyvalue
+    name: ai-business-builder-cache
+    plan: free
+    region: oregon
+    maxmemoryPolicy: noeviction
+    ipAllowList: []
+
+  - type: web
+    name: ai-business-builder-api
+    runtime: docker
+    plan: free
+    region: oregon
+    autoDeploy: false
+    dockerContext: .
+    dockerfilePath: ./backend/Dockerfile
+    healthCheckPath: /ready
+    maxShutdownDelaySeconds: 60
+    preDeployCommand: alembic upgrade head
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ai-business-builder-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: ai-business-builder-cache
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: keyvalue
+          name: ai-business-builder-cache
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          type: keyvalue
+          name: ai-business-builder-cache
+          property: connectionString
+      - key: FEATHERLESS_ENABLED
+        value: "true"
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: ENCRYPTION_KEY
+        sync: false
+      - key: FEATHERLESS_API_KEY
+        sync: false
+      - key: FEATHERLESS_BASE_URL
+        value: https://api.featherless.ai/v1
+      - key: FEATHERLESS_GENERAL_MODEL
+        value: deepseek-ai/DeepSeek-V3-0324
+      - key: FEATHERLESS_CODING_MODEL
+        value: Qwen/Qwen2.5-Coder-32B-Instruct
+      - key: FEATHERLESS_REASONING_MODEL
+        value: deepseek-ai/DeepSeek-V3-0324
+      - key: FEATHERLESS_MARKETING_MODEL
+        value: deepseek-ai/DeepSeek-V3-0324
+      - key: FEATHERLESS_BROWSER_MODEL
+        value: deepseek-ai/DeepSeek-V3-0324
+      - key: GROQ_API_KEY
+        sync: false
+      - key: HF_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: STABILITY_API_KEY
+        sync: false
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_ENV
+        value: sandbox
+      - key: PAYPAL_WEBHOOK_ID
+        sync: false
+      - key: LINKEDIN_CLIENT_ID
+        sync: false
+      - key: LINKEDIN_CLIENT_SECRET
+        sync: false
+      - key: LINKEDIN_REDIRECT_URI
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: BACKEND_URL
+        sync: false
+      - key: APP_BASE_URL
+        sync: false
+      - key: API_BASE_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: TRUSTED_HOSTS
+        sync: false
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: EMAIL_FROM
+        value: noreply@autonomousbusiness.ai
+      - key: EMAIL_FROM_NAME
+        value: Autonomous Business Builder
+      - key: OLLAMA_BASE_URL
+        value: http://localhost:11434
+      - key: REDIS_HEALTHCHECK_ENABLED
+        value: "true"
+      - key: SECURE_COOKIES
+        value: "true"
+      - key: BROWSER_HEADLESS
+        value: "true"
+
+  - type: web
+    name: ai-business-builder-web
+    runtime: node
+    plan: free
+    region: oregon
+    autoDeploy: false
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start -- --hostname 0.0.0.0 --port $PORT
+    healthCheckPath: /login
+    envVars:
+      - key: NODE_VERSION
+        value: 20.19.0
+      - key: NEXT_PUBLIC_API_URL
+        value: /api/v1
+      - key: BACKEND_HOSTPORT
+        fromService:
+          type: web
+          name: ai-business-builder-api
+          property: hostport
+      - key: NEXT_PUBLIC_PAYPAL_CLIENT_ID
+        sync: false

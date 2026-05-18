@@ -199,3 +199,14 @@ The repo now includes a production Docker stack with:
 - optional Prometheus + Grafana
 
 Start with the full guide in [DEPLOYMENT.md](DEPLOYMENT.md).
+
+## CLOSEST FREE CLOUD DEPLOY
+
+If you need the closest always-online free evaluation path, use Render’s free tier with the repo blueprint:
+
+- guide: [DEPLOY_FREE.md](DEPLOY_FREE.md)
+- blueprint: [render.yaml](render.yaml)
+- one-click import: [Deploy to Render](https://render.com/deploy?repo=https://github.com/Dilip-chendra/Autonomous-Business-Builder.git)
+
+This path is suitable for demos and evaluation, but Render’s own docs say free instances are **not for production** and may sleep or restart:
+[Render free docs](https://render.com/docs/free)
