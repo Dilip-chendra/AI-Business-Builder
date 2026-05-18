@@ -334,6 +334,7 @@ function MarketingPageInner() {
 
   // Engine tab
   const [goal, setGoal] = useState("");
+  const [contentGoal, setContentGoal] = useState("");
   const [budget, setBudget] = useState("100");
   const [platforms, setPlatforms] = useState<string[]>(["email", "linkedin", "twitter"]);
   const [running, setRunning] = useState(false);
