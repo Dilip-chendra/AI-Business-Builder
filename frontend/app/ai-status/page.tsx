@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 
 type AIHealth = {
-  featherless: boolean;
   groq: boolean;
   huggingface: boolean;
   ollama: boolean;

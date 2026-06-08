@@ -95,7 +95,6 @@ class GeneratedBusiness(BaseModel):
 
 class AIHealth(BaseModel):
     """Provider availability status returned by GET /api/v1/ai/health."""
-    featherless: bool
     groq: bool
     huggingface: bool
     ollama: bool
@@ -261,16 +260,14 @@ class AIService:
 
     async def health(self) -> AIHealth:
         """Check which providers are currently available."""
-        featherless_ok = False
         groq_ok = bool(settings.groq_api_key)
         hf_ok   = bool(settings.hf_api_key)
         ollama_ok = await self._ollama_available()
         return AIHealth(
-            featherless=featherless_ok,
             groq=groq_ok,
             huggingface=hf_ok,
             ollama=ollama_ok,
-            any_available=featherless_ok or groq_ok or hf_ok or ollama_ok,
+            any_available=groq_ok or hf_ok or ollama_ok,
         )
 
     @staticmethod

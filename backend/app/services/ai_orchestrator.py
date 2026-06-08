@@ -291,7 +291,6 @@ class SmartAIOrchestrator:
         """Check overall health and provider status."""
         health = await self.base_ai.health()
         return {
-            "featherless": health.featherless,
             "groq": health.groq,
             "huggingface": health.huggingface,
             "ollama": health.ollama,

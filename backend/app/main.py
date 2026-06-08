@@ -91,8 +91,7 @@ async def lifespan(app: FastAPI):
         settings.google_cse_api_key and settings.google_cse_id,
     ])
     logger.info(
-        "Provider status: Featherless=%s Groq=%s HuggingFace=%s Ollama=%s LiveSearch(optional)=%s BrowserAgent=%s",
-        "disabled",
+        "Provider status: Groq=%s HuggingFace=%s Ollama=%s LiveSearch(optional)=%s BrowserAgent=%s",
         "configured" if settings.groq_api_key else "missing",
         "configured" if settings.hf_api_key else "missing",
         "reachable" if health.ollama else "unreachable",

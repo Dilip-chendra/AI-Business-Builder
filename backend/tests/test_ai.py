@@ -14,9 +14,8 @@ async def test_ai_health_shape(client: AsyncClient):
     response = await client.get("/api/v1/ai/health")
     assert response.status_code == 200
     data = response.json()
-    assert set(data.keys()) == {"featherless", "groq", "huggingface", "ollama", "any_available"}
+    assert set(data.keys()) == {"groq", "huggingface", "ollama", "any_available"}
     # In test environment no real keys are set, so hosted providers should be False
-    assert isinstance(data["featherless"], bool)
     assert isinstance(data["groq"], bool)
     assert isinstance(data["huggingface"], bool)
     assert isinstance(data["ollama"], bool)

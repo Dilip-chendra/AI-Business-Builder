@@ -78,12 +78,6 @@ async def ai_execution_health(
     }
 
     providers = {
-        "featherless": {
-            "configured": False,
-            "reachable": False,
-            "model": settings.featherless_reasoning_model,
-            "status": "disabled_deprecated_provider",
-        },
         "groq": {
             "configured": _configured(settings.groq_api_key),
             "reachable": bool(ai_health.groq),

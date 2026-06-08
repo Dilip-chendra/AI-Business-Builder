@@ -111,14 +111,6 @@ async def provider_audit(
     ])
 
     providers = {
-        "featherless": _provider_status(
-            "featherless",
-            configured=False,
-            model=settings.featherless_reasoning_model,
-            telemetry_stats=stats,
-            reachable=False,
-            error="disabled: Featherless trial provider has been removed from active routing.",
-        ),
         "groq": _provider_status(
             "groq",
             configured=_configured(settings.groq_api_key),
@@ -193,7 +185,6 @@ async def provider_audit(
         },
         "providers": providers,
         "summary": {
-            "featherless_configured": providers["featherless"]["configured"],
             "groq_configured": providers["groq"]["configured"],
             "huggingface_configured": providers["huggingface"]["configured"],
             "ollama_reachable": ollama_reachable,
