@@ -1,0 +1,136 @@
+{
+  "id": "dcb5694a-99cf-455c-96db-01bd59f25a94",
+  "name": "ShopifyFlow",
+  "niche": "Shopify app development",
+  "description": "Streamline your Shopify store with automation, save time and boost sales. Get started with our expert-built apps.",
+  "target_audience": "Small business owners aged 25-50 with 1-10 employees",
+  "monetization_model": "Subscription-based",
+  "brand_tone": "Friendly, expert",
+  "headline": "Automate Your Shopify Store in Minutes, Not Months",
+  "subheading": "Say goodbye to manual tasks and hello to more sales and free time. Our apps make it easy.",
+  "product_pitch": "Our Shopify apps help you automate tasks, reduce errors, and increase sales. Try us today!",
+  "cta_text": "Start Free \u2014 No Card Needed",
+  "seo_title": "Shopify Automation | Streamline Your Store",
+  "seo_description": "Expert-built Shopify apps for automation, sales, and time-saving. Try free today!",
+  "page_content": {
+    "pain_points": [
+      "Spending too much time on manual tasks",
+      "Making too many errors with manual orders",
+      "Missing out on sales due to slow website performance"
+    ],
+    "benefits": [
+      "Go from 5 hours of manual tasks to 1 hour per day",
+      "Increase sales by 20% with automated promotions",
+      "Reduce errors by 99% with automated order fulfillment"
+    ],
+    "features": [
+      {
+        "title": "Automated Order Fulfillment",
+        "description": "Streamline your order process with our automated fulfillment app.",
+        "icon_hint": "zap"
+      },
+      {
+        "title": "Product Recommendations",
+        "description": "Increase sales with personalized product recommendations.",
+        "icon_hint": "chart"
+      },
+      {
+        "title": "Inventory Management",
+        "description": "Keep track of your inventory levels with our automated system.",
+        "icon_hint": "users"
+      },
+      {
+        "title": "Customer Segmentation",
+        "description": "Target your customers with personalized marketing campaigns.",
+        "icon_hint": "globe"
+      }
+    ],
+    "social_proof": [
+      {
+        "name": "Emily Chen",
+        "role": "Shopify Store Owner",
+        "quote": "ShopifyFlow saved me 10 hours per week and increased sales by 15%.",
+        "rating": 5
+      },
+      {
+        "name": "David Lee",
+        "role": "E-commerce Consultant",
+        "quote": "I've seen a 25% increase in sales for my clients using ShopifyFlow.",
+        "rating": 5
+      },
+      {
+        "name": "Sarah Kim",
+        "role": "Shopify Store Owner",
+        "quote": "ShopifyFlow helped me reduce errors by 99% and increased my revenue by $1,000 per month.",
+        "rating": 5
+      }
+    ],
+    "faq": [
+      {
+        "question": "What is the pricing for ShopifyFlow?",
+        "answer": "Our pricing starts at $29 per month for the basic plan."
+      },
+      {
+        "question": "How long does it take to set up ShopifyFlow?",
+        "answer": "Our setup process typically takes 1-2 hours."
+      },
+      {
+        "question": "Can I cancel my subscription at any time?",
+        "answer": "Yes, you can cancel your subscription at any time."
+      },
+      {
+        "question": "What results can I expect from using ShopifyFlow?",
+        "answer": "You can expect to save time, increase sales, and reduce errors."
+      }
+    ],
+    "pricing_tiers": [
+      {
+        "name": "Basic",
+        "price": 29,
+        "period": "month",
+        "features": [
+          "Automated Order Fulfillment",
+          "Product Recommendations",
+          "Inventory Management"
+        ],
+        "cta": "Start Basic Plan",
+        "highlighted": false
+      },
+      {
+        "name": "Pro",
+        "price": 99,
+        "period": "month",
+        "features": [
+          "Automated Order Fulfillment",
+          "Product Recommendations",
+          "Inventory Management",
+          "Customer Segmentation"
+        ],
+        "cta": "Start Pro Plan",
+        "highlighted": true
+      },
+      {
+        "name": "Enterprise",
+        "price": 299,
+        "period": "month",
+        "features": [
+          "Automated Order Fulfillment",
+          "Product Recommendations",
+          "Inventory Management",
+          "Customer Segmentation",
+          "Custom Development"
+        ],
+        "cta": "Contact Us",
+        "highlighted": false
+      }
+    ],
+    "urgency_text": "Join 1,200+ entrepreneurs \u2014 30 spots left",
+    "trust_badges": [
+      "No credit card required",
+      "30-day money-back guarantee",
+      "Secure payment processing",
+      "Expert support team"
+    ],
+    "color_scheme": "amber"
+  }
+}

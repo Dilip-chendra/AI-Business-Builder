@@ -1,0 +1,136 @@
+{
+  "id": "ff2a48fc-23ba-4841-ad73-43aee61026b4",
+  "name": "FitFlow Pro",
+  "niche": "Online fitness coaching for busy professionals",
+  "description": "FitFlow Pro delivers personalized 15-minute workouts designed by elite trainers to maximize results with minimal time investment. Our AI-powered platform adapts to your schedule, fitness level, and equipment availability.",
+  "target_audience": "Busy professionals aged 28-45 who struggle to maintain consistent fitness routines",
+  "monetization_model": "Subscription-based access to workout plans and premium coaching features",
+  "brand_tone": "Motivational yet practical, with a focus on efficiency and science-backed results",
+  "headline": "CEO-Level Fitness in 15 Minutes",
+  "subheading": "Get personal trainer results in less time than your coffee break. Our members average 3x more consistency than traditional gym-goers.",
+  "product_pitch": "FitFlow Pro combines AI-driven workout personalization with human coaching expertise. Receive daily 15-minute workouts tailored to your goals, schedule, and available equipment - whether you're in a hotel room or home office.",
+  "cta_text": "Get Your Free Plan \u2014 No Equipment Needed",
+  "seo_title": "15-Minute Workouts for Busy Professionals | FitFlow Pro",
+  "seo_description": "Busy professionals get 3x better fitness results in 15-minute daily workouts. AI-personalized plans adapt to your schedule and space. Join 2,300+ members.",
+  "page_content": {
+    "pain_points": [
+      "Too exhausted after work to exercise despite good intentions",
+      "Gym memberships going unused due to unpredictable schedules",
+      "Overwhelmed by conflicting fitness advice and complex routines"
+    ],
+    "benefits": [
+      "Go from inconsistent workouts to 15-minute daily sessions with 92% adherence",
+      "Transform from frustrated gym-goer to confident exerciser in 21 days",
+      "Save 5+ weekly hours while getting better results than 60-minute workouts"
+    ],
+    "features": [
+      {
+        "title": "AI Workout Generator",
+        "description": "Instantly creates perfect routines based on your time, energy, and available space",
+        "icon_hint": "zap"
+      },
+      {
+        "title": "Progress Guardian",
+        "description": "Auto-adjusts difficulty as you improve to prevent plateaus",
+        "icon_hint": "shield"
+      },
+      {
+        "title": "Executive Mode",
+        "description": "Special travel/high-stress week protocols to maintain momentum",
+        "icon_hint": "chart"
+      },
+      {
+        "title": "Coach Connect",
+        "description": "Weekly video form checks with certified trainers",
+        "icon_hint": "users"
+      }
+    ],
+    "social_proof": [
+      {
+        "name": "Mark T.",
+        "role": "Tech Startup Founder",
+        "quote": "Gained 8lbs of muscle in 3 months despite 80-hour work weeks. The hotel room workouts saved me.",
+        "rating": 5
+      },
+      {
+        "name": "Priya N.",
+        "role": "Hospital Administrator",
+        "quote": "Finally consistent after 10 years of failed gym memberships. 117 consecutive workouts and counting!",
+        "rating": 5
+      },
+      {
+        "name": "David R.",
+        "role": "Consultant",
+        "quote": "Cut my body fat by 5% in 6 weeks using just bodyweight routines during conference trips.",
+        "rating": 4
+      }
+    ],
+    "faq": [
+      {
+        "question": "How soon will I see results?",
+        "answer": "Most members report feeling more energetic within 7 days and visible changes by week 4 when following the program 5x/week."
+      },
+      {
+        "question": "What if I need to cancel?",
+        "answer": "Cancel anytime in two clicks\u2014no hoops. We'll even email you your favorite workouts to keep."
+      },
+      {
+        "question": "Do I need equipment?",
+        "answer": "No. Every exercise has equipment-free alternatives, though we provide upgrade options for those with bands or dumbbells."
+      },
+      {
+        "question": "How does the free trial work?",
+        "answer": "Get full access for 14 days. No payment info required upfront\u2014we only ask for it if you choose to continue."
+      }
+    ],
+    "pricing_tiers": [
+      {
+        "name": "Starter",
+        "price": 19,
+        "period": "month",
+        "features": [
+          "Basic workout library",
+          "3 new routines weekly",
+          "Progress tracking",
+          "Email support"
+        ],
+        "cta": "Start Free Trial",
+        "highlighted": false
+      },
+      {
+        "name": "Pro",
+        "price": 39,
+        "period": "month",
+        "features": [
+          "AI-generated custom plans",
+          "Unlimited workout variations",
+          "Form feedback videos",
+          "Priority support"
+        ],
+        "cta": "Most Popular",
+        "highlighted": true
+      },
+      {
+        "name": "Executive",
+        "price": 299,
+        "period": "year",
+        "features": [
+          "Everything in Pro",
+          "Biweekly coach calls",
+          "Travel nutrition guides",
+          "24/7 text support"
+        ],
+        "cta": "Save $169",
+        "highlighted": false
+      }
+    ],
+    "urgency_text": "2,300+ professionals transformed \u2014 Next cohort starts Monday",
+    "trust_badges": [
+      "30-day money-back guarantee",
+      "Certified personal trainers",
+      "Used by executives at Google & Salesforce",
+      "No equipment required"
+    ],
+    "color_scheme": "emerald"
+  }
+}

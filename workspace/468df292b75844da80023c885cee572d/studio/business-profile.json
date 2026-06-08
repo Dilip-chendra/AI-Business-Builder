@@ -1,0 +1,85 @@
+{
+  "headline": "Expert Home Services When You Need Them Most",
+  "subheading": "Reliable HVAC, Plumbing, Electrical, and Roofing Solutions for Your Home",
+  "cta_text": "Schedule a Service Call",
+  "description": "Expert Home Services helps homeowners handle urgent repairs and scheduled maintenance with reliable technicians across HVAC, plumbing, electrical, and roofing needs.",
+  "product_pitch": "One trusted home services team for fast response, clear communication, and quality workmanship when your home needs attention.",
+  "seo_title": "Expert Home Services | HVAC, Plumbing, Electrical & Roofing",
+  "seo_description": "Reliable home repair services for HVAC, plumbing, electrical, and roofing needs. Schedule urgent or planned service with Expert Home Services.",
+  "page_content": {
+    "pain_points": [
+      "Leaky pipes causing water damage and stressful cleanup.",
+      "Broken AC or heating when your family needs comfort most.",
+      "Outdated electrical panels, flickering lights, and unsafe wiring.",
+      "Roof leaks that can turn a small repair into a costly emergency."
+    ],
+    "benefits": [
+      "Urgent and scheduled repair support from one trusted team.",
+      "Licensed technicians for HVAC, plumbing, electrical, and roofing work.",
+      "Clear communication, fast arrival windows, and workmanship you can trust."
+    ],
+    "features": [
+      {
+        "title": "Emergency HVAC Repairs",
+        "description": "Rapid help for broken AC units, heating failures, tune-ups, and urgent comfort issues.",
+        "icon_hint": "zap"
+      },
+      {
+        "title": "Licensed Plumbing Solutions",
+        "description": "Leak repair, drain clearing, fixture replacement, and dependable plumbing service.",
+        "icon_hint": "shield"
+      },
+      {
+        "title": "Certified Electrical Work",
+        "description": "Safe troubleshooting, panel upgrades, outlet repairs, lighting, and wiring support.",
+        "icon_hint": "lock"
+      },
+      {
+        "title": "Quality Roofing",
+        "description": "Roof leak repair, storm-damage checks, maintenance, and durable replacement guidance.",
+        "icon_hint": "star"
+      }
+    ],
+    "social_proof": [
+      {
+        "name": "Maya R.",
+        "role": "Homeowner",
+        "quote": "They arrived the same afternoon, found the plumbing leak, and fixed it cleanly.",
+        "rating": 5
+      },
+      {
+        "name": "Daniel K.",
+        "role": "Homeowner",
+        "quote": "Our AC failed during a heat wave. Expert Home Services had us cooling again fast.",
+        "rating": 5
+      },
+      {
+        "name": "Priya S.",
+        "role": "Homeowner",
+        "quote": "Professional electrical work, clear pricing, and no mess left behind.",
+        "rating": 5
+      }
+    ],
+    "faq": [
+      {
+        "question": "Do you handle emergency repairs?",
+        "answer": "Yes. We support urgent service calls for HVAC, plumbing, electrical, and roofing problems."
+      },
+      {
+        "question": "Can I schedule non-urgent maintenance?",
+        "answer": "Yes. You can book inspections, tune-ups, repairs, and planned home improvement work."
+      },
+      {
+        "question": "Are technicians licensed?",
+        "answer": "Expert Home Services works with qualified, licensed professionals for specialized home repair needs."
+      }
+    ],
+    "trust_badges": [
+      "Fast response",
+      "Licensed specialists",
+      "Quality workmanship"
+    ],
+    "urgency_text": "Small home problems can become expensive fast. Schedule expert help today.",
+    "color_scheme": "black_gold"
+  }
+}

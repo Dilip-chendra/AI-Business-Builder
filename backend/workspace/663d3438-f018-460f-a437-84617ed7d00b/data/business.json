@@ -1,0 +1,18 @@
+{
+  "id": "663d3438-f018-460f-a437-84617ed7d00b",
+  "name": "BrainSpark Academy",
+  "niche": "Productivity education",
+  "description": "A practical productivity education business for local AI Studio validation.",
+  "target_audience": "busy founders",
+  "monetization_model": "digital courses",
+  "brand_tone": "clear",
+  "headline": "Build sharper work systems",
+  "subheading": "Learn practical productivity workflows without busywork.",
+  "product_pitch": "Courses and templates for better execution.",
+  "cta_text": "Start learning",
+  "seo_title": "BrainSpark Academy",
+  "seo_description": "Productivity education for founders",
+  "page_content": {
+    "color_scheme": "amber"
+  }
+}

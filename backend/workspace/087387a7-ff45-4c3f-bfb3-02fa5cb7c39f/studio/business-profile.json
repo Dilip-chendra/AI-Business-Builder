@@ -1,0 +1,99 @@
+{
+  "headline": "Premium Fitness Coaching That Builds Strength, Confidence, and Consistency",
+  "subheading": "A high-touch coaching experience for busy people who want personalized workouts, accountability, and measurable transformation.",
+  "cta_text": "Book My Free Coaching Call",
+  "description": "Premium coaching for busy professionals who want strength, energy, and consistency.",
+  "product_pitch": "Personalized coaching, weekly check-ins, habit systems, and progress tracking built around your real schedule.",
+  "seo_title": "FitPro Coach",
+  "seo_description": "Premium fitness coaching for busy professionals.",
+  "page_content": {
+    "social_proof": [
+      {
+        "name": "Maya R.",
+        "role": "Busy professional",
+        "quote": "The coaching gave me structure, confidence, and a plan I could actually follow.",
+        "rating": 5
+      },
+      {
+        "name": "Arjun K.",
+        "role": "Founder",
+        "quote": "I finally stopped guessing and started seeing consistent weekly progress.",
+        "rating": 5
+      },
+      {
+        "name": "Priya S.",
+        "role": "Working parent",
+        "quote": "The accountability made the difference. I felt supported the whole way.",
+        "rating": 5
+      }
+    ],
+    "trust_badges": [
+      "Personalized coaching",
+      "Weekly accountability",
+      "Progress tracking"
+    ],
+    "benefits": [
+      "Train with a plan built around your body, schedule, and goals.",
+      "Stay consistent with coaching check-ins and simple habit systems.",
+      "See measurable progress without guessing what to do next."
+    ],
+    "features": [
+      {
+        "title": "Personalized Strategy",
+        "description": "A focused plan built around the customer, not a generic template.",
+        "icon_hint": "star"
+      },
+      {
+        "title": "Accountability System",
+        "description": "Clear next steps, progress visibility, and consistent follow-through.",
+        "icon_hint": "check"
+      },
+      {
+        "title": "Measurable Outcomes",
+        "description": "Structured milestones that make progress easy to understand.",
+        "icon_hint": "chart"
+      }
+    ],
+    "urgency_text": "Start with a sharper, more premium experience while momentum is fresh.",
+    "pricing_tiers": [
+      {
+        "name": "Starter",
+        "price": "$49",
+        "period": "mo",
+        "features": [
+          "Personalized starter plan",
+          "Weekly progress tracker",
+          "Email support"
+        ],
+        "cta": "Book My Free Coaching Call",
+        "highlighted": false
+      },
+      {
+        "name": "Transformation",
+        "price": "$149",
+        "period": "mo",
+        "features": [
+          "Custom workouts",
+          "Weekly coaching call",
+          "Nutrition guidance",
+          "Habit accountability"
+        ],
+        "cta": "Book My Free Coaching Call",
+        "highlighted": true
+      },
+      {
+        "name": "Elite",
+        "price": "$299",
+        "period": "mo",
+        "features": [
+          "Everything in Transformation",
+          "2x weekly coaching",
+          "Priority support",
+          "Advanced progress review"
+        ],
+        "cta": "Book My Free Coaching Call",
+        "highlighted": false
+      }
+    ]
+  }
+}

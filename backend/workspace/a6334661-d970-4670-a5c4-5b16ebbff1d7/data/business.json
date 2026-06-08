@@ -1,0 +1,62 @@
+{
+  "id": "a6334661-d970-4670-a5c4-5b16ebbff1d7",
+  "name": "FitPro Coach Prompt Suite",
+  "niche": "fitness coaching",
+  "description": "Premium coaching for busy professionals who want strength, energy, and consistency.",
+  "target_audience": "busy professionals",
+  "monetization_model": "monthly coaching subscription",
+  "brand_tone": "premium, direct, encouraging",
+  "headline": "Premium Fitness Coaching That Builds Strength, Confidence, and Consistency",
+  "subheading": "A high-touch coaching experience for busy people who want personalized workouts, accountability, and measurable transformation.",
+  "product_pitch": "Personalized coaching, weekly check-ins, habit systems, and progress tracking built around your real schedule.",
+  "cta_text": "Book My Free Coaching Call",
+  "seo_title": "FitPro Coach",
+  "seo_description": "Premium fitness coaching for busy professionals.",
+  "page_content": {
+    "social_proof": [
+      {
+        "name": "John Doe",
+        "role": "CEO, Tech Innovations Inc.",
+        "quote": "FitPro Coach has transformed my fitness routine. I now have more energy and focus during meetings.",
+        "rating": 5
+      },
+      {
+        "name": "Jane Smith",
+        "role": "Marketing Manager, GreenLeaf Corp.",
+        "quote": "The personalized workouts have helped me stay consistent with my fitness goals despite a hectic schedule.",
+        "rating": 5
+      }
+    ],
+    "color_scheme": "indigo",
+    "benefits": [
+      "Train with a plan built around your body, schedule, and goals.",
+      "Stay consistent with coaching check-ins and simple habit systems.",
+      "See measurable progress without guessing what to do next."
+    ],
+    "features": [
+      {
+        "title": "Personalized Strategy",
+        "description": "A focused plan built around the customer, not a generic template.",
+        "icon_hint": "star"
+      },
+      {
+        "title": "Accountability System",
+        "description": "Clear next steps, progress visibility, and consistent follow-through.",
+        "icon_hint": "check"
+      },
+      {
+        "title": "Measurable Outcomes",
+        "description": "Structured milestones that make progress easy to understand.",
+        "icon_hint": "chart"
+      }
+    ],
+    "pricing_tiers": [],
+    "faq": [],
+    "trust_badges": [
+      "Personalized coaching",
+      "Weekly accountability",
+      "Progress tracking"
+    ],
+    "urgency_text": "Start with a sharper, more premium experience while momentum is fresh."
+  }
+}

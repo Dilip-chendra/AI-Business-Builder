@@ -1,0 +1,9 @@
+{
+  "backend_pid": 2384,
+  "frontend_pid": 2624,
+  "ollama_pid": null,
+  "backend_log": "C:\\Users\\admin\\Downloads\\Git Uploads\\AI-Business-Builder\\.runtime\\logs\\backend.log",
+  "frontend_log": "C:\\Users\\admin\\Downloads\\Git Uploads\\AI-Business-Builder\\.runtime\\logs\\frontend.log",
+  "started_at": 1780885341,
+  "dev_mode": true
+}

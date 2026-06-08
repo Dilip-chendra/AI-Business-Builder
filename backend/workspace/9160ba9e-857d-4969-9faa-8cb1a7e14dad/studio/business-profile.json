@@ -1,0 +1,72 @@
+{
+  "headline": "Original Headline",
+  "subheading": "Original subheading.",
+  "cta_text": "Start My Premium Fitness Plan",
+  "description": "Original description.",
+  "product_pitch": "Original product pitch.",
+  "seo_title": "Original SEO title.",
+  "seo_description": "Original SEO description.",
+  "page_content": {
+    "color_scheme": "black_gold",
+    "benefits": [
+      "Original benefits"
+    ],
+    "features": [
+      {
+        "title": "Original feature title",
+        "description": "Original feature description",
+        "icon_hint": "zap|shield|chart|users|star|clock|globe|lock"
+      }
+    ],
+    "lead_capture": {
+      "headline": "Original lead capture headline",
+      "description": "Original lead capture description",
+      "fields": [
+        "Name",
+        "Phone",
+        "Email"
+      ],
+      "cta": "Original lead capture CTA"
+    },
+    "quote_request": {
+      "headline": "Original quote request headline",
+      "description": "Original quote request description",
+      "fields": [
+        "Service needed",
+        "Timeline",
+        "Phone"
+      ],
+      "cta": "Original quote request CTA"
+    },
+    "social_proof": [
+      {
+        "name": "Original social proof name",
+        "role": "Original social proof role",
+        "quote": "Original social proof quote",
+        "rating": 5
+      }
+    ],
+    "pricing_tiers": [
+      {
+        "name": "Original pricing tier name",
+        "price": "$99",
+        "period": "mo",
+        "features": [
+          "Original pricing tier features"
+        ],
+        "cta": "Original pricing tier CTA",
+        "highlighted": true
+      }
+    ],
+    "faq": [
+      {
+        "question": "Original FAQ question",
+        "answer": "Original FAQ answer"
+      }
+    ],
+    "trust_badges": [
+      "Original trust badges"
+    ],
+    "urgency_text": "Original urgency text"
+  }
+}

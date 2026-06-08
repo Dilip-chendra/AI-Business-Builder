@@ -1,0 +1,18 @@
+{
+  "id": "e0959d70-056a-4053-a8db-cd960fc2aae8",
+  "name": "FitPro Coach Local Test",
+  "niche": "fitness coaching",
+  "description": "Premium coaching for busy professionals who want strength, energy, and consistency.",
+  "target_audience": "busy professionals",
+  "monetization_model": "monthly coaching subscription",
+  "brand_tone": "premium, direct, encouraging",
+  "headline": "FitPro Coach",
+  "subheading": "Personalized fitness coaching for real-life schedules.",
+  "product_pitch": "Custom workouts, habit accountability, and weekly coaching.",
+  "cta_text": "Claim Your Free Consultation",
+  "seo_title": "FitPro Coach",
+  "seo_description": "Premium fitness coaching for busy professionals.",
+  "page_content": {
+    "color_scheme": "black_gold"
+  }
+}

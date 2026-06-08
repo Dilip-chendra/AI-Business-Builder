@@ -1,0 +1,292 @@
+[
+  {
+    "title": "AI Business Builder",
+    "route": "/",
+    "viewport": {
+      "width": 1366,
+      "height": 900
+    },
+    "scrollWidth": 1361,
+    "clientWidth": 1361,
+    "bodyScrollWidth": 1361,
+    "hasHorizontalOverflow": false,
+    "logoCount": 2,
+    "badLogoImgs": [],
+    "wide": [],
+    "screenshot": "C:\\Users\\admin\\Downloads\\Git Uploads\\AI-Business-Builder\\.runtime\\brand-responsive-check\\home-desktop.png"
+  },
+  {
+    "title": "AI Business Builder",
+    "route": "/",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "bodyScrollWidth": 390,
+    "hasHorizontalOverflow": false,
+    "logoCount": 2,
+    "badLogoImgs": [],
+    "wide": [
+      {
+        "tag": "DIV",
+        "text": "",
+        "left": -105,
+        "right": 495,
+        "width": 600
+      }
+    ],
+    "screenshot": "C:\\Users\\admin\\Downloads\\Git Uploads\\AI-Business-Builder\\.runtime\\brand-responsive-check\\home-mobile.png"
+  },
+  {
+    "title": "AI Business Builder",
+    "route": "/login",
+    "viewport": {
+      "width": 1366,
+      "height": 900
+    },
+    "scrollWidth": 1366,
+    "clientWidth": 1366,
+    "bodyScrollWidth": 1366,
+    "hasHorizontalOverflow": false,
+    "logoCount": 2,
+    "badLogoImgs": [],
+    "wide": [],
+    "screenshot": "C:\\Users\\admin\\Downloads\\Git Uploads\\AI-Business-Builder\\.runtime\\brand-responsive-check\\login-desktop.png"
+  },
+  {
+    "title": "AI Business Builder",
+    "route": "/login",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "bodyScrollWidth": 390,
+    "hasHorizontalOverflow": false,
+    "logoCount": 2,
+    "badLogoImgs": [],
+    "wide": [],
+    "screenshot": "C:\\Users\\admin\\Downloads\\Git Uploads\\AI-Business-Builder\\.runtime\\brand-responsive-check\\login-mobile.png"
+  },
+  {
+    "title": "AI Business Builder",
+    "route": "/signup",
+    "viewport": {
+      "width": 1366,
+      "height": 900
+    },
+    "scrollWidth": 1366,
+    "clientWidth": 1366,
+    "bodyScrollWidth": 1366,
+    "hasHorizontalOverflow": false,
+    "logoCount": 2,
+    "badLogoImgs": [],
+    "wide": [],
+    "screenshot": "C:\\Users\\admin\\Downloads\\Git Uploads\\AI-Business-Builder\\.runtime\\brand-responsive-check\\signup-desktop.png"
+  },
+  {
+    "title": "AI Business Builder",
+    "route": "/signup",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "bodyScrollWidth": 390,
+    "hasHorizontalOverflow": false,
+    "logoCount": 2,
+    "badLogoImgs": [],
+    "wide": [],
+    "screenshot": "C:\\Users\\admin\\Downloads\\Git Uploads\\AI-Business-Builder\\.runtime\\brand-responsive-check\\signup-mobile.png"
+  },
+  {
+    "title": "AI Business Builder",
+    "route": "/dashboard",
+    "viewport": {
+      "width": 1366,
+      "height": 900
+    },
+    "scrollWidth": 1366,
+    "clientWidth": 1366,
+    "bodyScrollWidth": 1366,
+    "hasHorizontalOverflow": false,
+    "logoCount": 2,
+    "badLogoImgs": [],
+    "wide": [
+      {
+        "tag": "DIV",
+        "text": "",
+        "left": 1182,
+        "right": 1382,
+        "width": 200
+      }
+    ],
+    "screenshot": "C:\\Users\\admin\\Downloads\\Git Uploads\\AI-Business-Builder\\.runtime\\brand-responsive-check\\dashboard-desktop.png"
+  },
+  {
+    "title": "AI Business Builder",
+    "route": "/dashboard",
+    "viewport": {
+      "width": 664,
+      "height": 1437
+    },
+    "scrollWidth": 664,
+    "clientWidth": 390,
+    "bodyScrollWidth": 664,
+    "hasHorizontalOverflow": true,
+    "logoCount": 2,
+    "badLogoImgs": [],
+    "wide": [
+      {
+        "tag": "ASIDE",
+        "text": "AI Business BuilderAutonomous operating systemCCreate workspaceBusiness ContextC",
+        "left": -256,
+        "right": 0,
+        "width": 256
+      },
+      {
+        "tag": "DIV",
+        "text": "AI Business BuilderAutonomous operating system",
+        "left": -256,
+        "right": 0,
+        "width": 256
+      },
+      {
+        "tag": "A",
+        "text": "AI Business BuilderAutonomous operating system",
+        "left": -240,
+        "right": -16,
+        "width": 224
+      },
+      {
+        "tag": "SPAN",
+        "text": "AI Business BuilderAutonomous operating system",
+        "left": -240,
+        "right": -28.375,
+        "width": 211.625
+      },
+      {
+        "tag": "SPAN",
+        "text": "",
+        "left": -240,
+        "right": -198,
+        "width": 42
+      },
+      {
+        "tag": "IMG",
+        "text": "",
+        "left": -250,
+        "right": -188,
+        "width": 62
+      },
+      {
+        "tag": "SPAN",
+        "text": "AI Business BuilderAutonomous operating system",
+        "left": -188,
+        "right": -28.375,
+        "width": 159.625
+      },
+      {
+        "tag": "SPAN",
+        "text": "AI Business Builder",
+        "left": -188,
+        "right": -28.375,
+        "width": 159.625
+      }
+    ],
+    "screenshot": "C:\\Users\\admin\\Downloads\\Git Uploads\\AI-Business-Builder\\.runtime\\brand-responsive-check\\dashboard-mobile.png"
+  },
+  {
+    "title": "AI Business Builder",
+    "route": "/agent-live",
+    "viewport": {
+      "width": 1366,
+      "height": 900
+    },
+    "scrollWidth": 1366,
+    "clientWidth": 1366,
+    "bodyScrollWidth": 1366,
+    "hasHorizontalOverflow": false,
+    "logoCount": 2,
+    "badLogoImgs": [],
+    "wide": [],
+    "screenshot": "C:\\Users\\admin\\Downloads\\Git Uploads\\AI-Business-Builder\\.runtime\\brand-responsive-check\\agent-live-desktop.png"
+  },
+  {
+    "title": "AI Business Builder",
+    "route": "/agent-live",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "bodyScrollWidth": 390,
+    "hasHorizontalOverflow": false,
+    "logoCount": 2,
+    "badLogoImgs": [],
+    "wide": [
+      {
+        "tag": "ASIDE",
+        "text": "AI Business BuilderAutonomous operating systemCCreate workspaceBusiness ContextC",
+        "left": -256,
+        "right": 0,
+        "width": 256
+      },
+      {
+        "tag": "DIV",
+        "text": "AI Business BuilderAutonomous operating system",
+        "left": -256,
+        "right": 0,
+        "width": 256
+      },
+      {
+        "tag": "A",
+        "text": "AI Business BuilderAutonomous operating system",
+        "left": -240,
+        "right": -16,
+        "width": 224
+      },
+      {
+        "tag": "SPAN",
+        "text": "AI Business BuilderAutonomous operating system",
+        "left": -240,
+        "right": -28.375,
+        "width": 211.625
+      },
+      {
+        "tag": "SPAN",
+        "text": "",
+        "left": -240,
+        "right": -198,
+        "width": 42
+      },
+      {
+        "tag": "IMG",
+        "text": "",
+        "left": -250,
+        "right": -188,
+        "width": 62
+      },
+      {
+        "tag": "SPAN",
+        "text": "AI Business BuilderAutonomous operating system",
+        "left": -188,
+        "right": -28.375,
+        "width": 159.625
+      },
+      {
+        "tag": "SPAN",
+        "text": "AI Business Builder",
+        "left": -188,
+        "right": -28.375,
+        "width": 159.625
+      }
+    ],
+    "screenshot": "C:\\Users\\admin\\Downloads\\Git Uploads\\AI-Business-Builder\\.runtime\\brand-responsive-check\\agent-live-mobile.png"
+  }
+]

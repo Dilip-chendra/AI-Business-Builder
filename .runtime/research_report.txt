@@ -1,0 +1,1909 @@
+
+--- PAGE 1 ---
+AI Business Builder Production Hardening and
+Market Research Report
+Executive summary
+Your current product should be treated as a prototype with partial integrations, not a production
+marketing and automation platform. The core technical gap is not “missing buttons”; it is the lack of a
+reliable control plane for OAuth, token lifecycle, browser-session restoration, publish orchestration, asset
+generation, and observability. The highest-leverage technical move is to standardize on a backend-owned
+integrations platform: every official app connection starts from your frontend, completes on your backend
+with Authorization Code flow, stores encrypted tokens server-side, refreshes automatically, and exposes
+only internal tool endpoints to the AI agent. This is how Google web-server OAuth, Slack OAuth v2, LinkedIn
+3-legged OAuth, WordPress.com OAuth2, and similar providers are designed to be used. Google explicitly
+documents server-side OAuth flows, token storage best practices, and refresh handling; Slack requires
+redirect URIs to be configured consistently; LinkedIn and Notion also center their app integrations on user-
+authorized OAuth flows. 
+The browser agent should not be your primary publisher for providers that already support official APIs. It
+should be a fallback execution layer for flows that are unsupported, blocked by permission review, or
+operationally brittle. Playwright’s own guidance makes this separation natural: authenticated browser state
+can be stored and reused, but those files are sensitive and must not be committed; locators should rely on
+resilient selectors; traces, screenshots, and videos should be captured on failure to debug automation
+problems. In practice, that means LinkedIn, some WordPress flows, and account-recovery/verification flows
+can use the browser agent, while Gmail, Calendar , Notion, Slack, Meta Pages/Instagram, X, SendGrid, and
+image providers should default to official APIs wherever possible. 
+Your marketing engine also needs a hard split between generation, review, publishing, and 
+measurement. The engine should never fabricate success. If an image provider fails, the campaign must
+show image_generation_failed and stop or degrade cleanly; if a social publish returns 429 or a
+permissions error , the attempt should be recorded as failed with retriable metadata; if browser automation
+lands on a login page, that is a stale-session event, not a successful publish. This is especially important
+because Google, Slack, X, SendGrid, Replicate, Stability, and other providers all publish rate-limit or quota
+behavior that should drive real retry logic and user-facing status. 
+For the market research track, the best initial vertical is local home services—specifically HVAC, plumbing,
+electrical, and roofing contractors—because the segment is large, fragmented, locally marketed, lead-
+response dependent, and operationally close to the workflows your product can automate: inbound lead
+capture, quoting, appointment scheduling, review requests, local social posting, ad landing-page testing,
+email nurture, and follow-up. Official Census SUSB data shows that U.S. firms in plumbing/HVAC, electrical
+contracting, and roofing together total roughly 210,659 firms and 215,975 establishments, with about 
+189,492 firms in businesses under 20 employees, which is exactly the kind of fragmentation where a
+focused, verticalized AI growth OS can win. BLS also shows meaningful ongoing demand across these
+1
+2
+3
+1
+
+--- PAGE 2 ---
+trades.  Based on the downloaded 2022 SUSB table from the Census Bureau and BLS occupational
+outlook sources, the recommended wedge is home services growth automation for sub-20-employee
+operators, then adjacent expansion into higher-complexity verticals after product-market proof. 
+If executed well, the 12-month roadmap should produce a real, production-grade platform with four
+defendable layers: integrations infrastructure, browser fallback operator, verticalized marketing
+engine, and analytics/experimentation loop. The 10x product is not “AI that writes posts.” It is a reliable
+growth operating system that connects channels, creates channel-ready assets, gets human approval
+where required, publishes through the correct mechanism, measures outcomes, and learns which
+workflows actually move booked revenue. 
+Product diagnosis and target operating model
+Your current symptoms are consistent with a missing production backbone: LinkedIn partly works because
+one connector is wired to a valid OAuth or browser path, while other connectors are blocked because their
+app configs, scopes, redirect URIs, and token-exchange code are incomplete. The browser agent stopping
+on login pages indicates that session bootstrap, expired-state detection, MFA checkpointing, and human-in-
+the-loop recovery are not implemented as first-class states. The campaign engine producing fake success or
+non-sendable email implies that generation and publishing are not being validated against provider
+responses and deliverability prerequisites such as sender verification. SendGrid, for example, requires
+authenticated or verified senders; Google and Meta enforce scope- and review-based access; LinkedIn
+access depends on approved products and scopes. 
+The target model should look like this:
+The AI model should never call Gmail, Slack, Meta, Notion, X, or browser sessions directly. It should call your
+internal tools such as:
+POST /api/v1/tools/gmail/send
+POST /api/v1/tools/calendar/create-event
+POST /api/v1/tools/slack/post-message
+POST /api/v1/tools/notion/create-page
+POST /api/v1/tools/publish/meta/page-post
+POST /api/v1/tools/publish/x/post
+POST /api/v1/tools/browser/run
+That design keeps provider credentials off the model boundary, centralizes auditability, and lets you enforce
+approval gates, throttling, retries, and policy checks before any external action is taken. Google’s OAuth
+4
+5
+6
+7
+Frontend
+App
+Backend
+API
+OAuth
+Connect/Callback
+Layer
+Encrypted
+Token
+Vault
+Internal
+Tool
+Endpoints
+Jobs
+/
+Scheduler
+Official
+API
+Connectors
+Playwright
+Browser
+Operator
+Audit
++
+Attempts
+Metrics
++
+Attribution
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+2
+
+--- PAGE 3 ---
+best-practices guidance explicitly recommends secure storage of client credentials and user tokens, and
+RFC 6749 and the newer OAuth security guidance reinforce exact redirect matching, refresh-token handling,
+and secure server-side exchange. 
+Technical production hardening track
+Integration architecture and OAuth control plane
+The production rule is simple: frontend starts connection, backend owns OAuth, backend stores
+encrypted tokens, AI uses backend tools. For official OAuth providers, use Authorization Code flow for
+confidential clients on the server . For X, prefer OAuth 2.0 Authorization Code with PKCE for user context. For
+Notion, use a public connection acting on behalf of the signed-in user . For WordPress.com, use OAuth2 for
+WordPress.com sites and Application Passwords for self-hosted WordPress unless you explicitly add a site-
+side OAuth plugin. 
+A clean production route layout:
+GET    /api/v1/integrations/{provider}/connect
+GET    /api/v1/integrations/{provider}/callback
+POST   /api/v1/integrations/{provider}/disconnect
+POST   /api/v1/integrations/{provider}/test
+GET    /api/v1/integrations
+POST   /api/v1/tools/{provider}/{action}
+POST   /api/v1/browser/sessions/{provider}/refresh
+POST   /api/v1/browser/runs
+GET    /api/v1/browser/runs/{run_id}
+GET    /api/v1/campaigns/{campaign_id}/publishing-attempts
+Recommended production redirect URIs:
+Provider Production redirect URI patternNotes
+Google
+Workspace
+https://api.example.com/api/
+v1/integrations/google/
+callback
+Register exact redirect URI in Google Auth
+Platform. Web-server OAuth is the correct
+pattern. 
+Meta Pages /
+Instagram
+https://api.example.com/api/
+v1/integrations/meta/
+callback
+Must be whitelisted in Valid OAuth
+Redirect URIs / Login settings. 
+X https://api.example.com/api/
+v1/integrations/x/callback
+Register callback URL in the app; use
+PKCE. 
+Slack
+https://api.example.com/api/
+v1/integrations/slack/
+callback
+Slack docs require HTTPS redirect URIs
+and consistent redirect_uri across
+authorize and access steps. 
+8
+9
+10
+11
+12
+13
+3
+
+--- PAGE 4 ---
+Provider Production redirect URI patternNotes
+Notion
+https://api.example.com/api/
+v1/integrations/notion/
+callback
+Use public connection OAuth for user-
+scoped access. 
+WordPress.com
+https://api.example.com/api/
+v1/integrations/wordpress/
+callback
+Self-hosted WordPress usually uses
+Application Passwords instead. 
+For development, use http://localhost where the provider allows it, but prefer an HTTPS tunnel for
+Slack and any provider that is strict about HTTPS. Slack explicitly documents HTTPS redirect URIs, so plan for
+a tunnel or dev subdomain there. 
+Recommended environment variables:
+APP_ENV=production
+APP_PUBLIC_BASE_URL=https://app.example.com
+API_PUBLIC_BASE_URL=https://api.example.com
+DATABASE_URL=postgresql+psycopg://...
+REDIS_URL=redis://...
+TOKEN_ENCRYPTION_KEY=base64-encoded-aes-key
+KMS_KEY_ID=optional-kms-key
+SESSION_ENCRYPTION_KEY=base64-encoded-aes-key
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI=https://api.example.com/api/v1/integrations/google/callback
+META_CLIENT_ID=
+META_CLIENT_SECRET=
+META_REDIRECT_URI=https://api.example.com/api/v1/integrations/meta/callback
+X_CLIENT_ID=
+X_CLIENT_SECRET=
+X_REDIRECT_URI=https://api.example.com/api/v1/integrations/x/callback
+SLACK_CLIENT_ID=
+SLACK_CLIENT_SECRET=
+SLACK_REDIRECT_URI=https://api.example.com/api/v1/integrations/slack/callback
+NOTION_CLIENT_ID=
+NOTION_CLIENT_SECRET=
+NOTION_REDIRECT_URI=https://api.example.com/api/v1/integrations/notion/callback
+14
+15
+13
+4
+
+--- PAGE 5 ---
+WORDPRESS_CLIENT_ID=
+WORDPRESS_CLIENT_SECRET=
+WORDPRESS_REDIRECT_URI=https://api.example.com/api/v1/integrations/wordpress/
+callback
+SENDGRID_API_KEY=
+REPLICATE_API_TOKEN=
+STABILITY_API_KEY=
+HF_TOKEN=
+Production checklist for the OAuth control plane:
+generate and persist state per connect attempt
+verify state on callback
+store requested scopes and returned scopes
+encrypt access_token and refresh_token
+calculate and persist expires_at
+refresh access tokens server-side before expiry
+revoke and delete tokens on disconnect
+separate provider credentials by environment
+never expose tokens, client secrets, or refresh tokens to the frontend
+capture all integration events in an audit table
+Google’s published best practices are explicit here: keep client credentials in secure storage, keep user
+tokens secure, never transmit them in plaintext, and revoke/delete when no longer needed. 
+Recommended database schema
+Core integration tables:
+CREATEEXTENSIONIFNOTEXISTSpgcrypto;
+CREATETABLEintegration_providers(
+keyTEXTPRIMARYKEY,
+display_nameTEXTNOTNULL,
+auth_typeTEXTNOTNULL, -- oauth2, api_key, app_password, 
+browser
+statusTEXTNOTNULLDEFAULT'active',
+created_atTIMESTAMPTZNOTNULLDEFAULTnow()
+);
+CREATETABLEuser_integrations(
+idUUIDPRIMARYKEYDEFAULTgen_random_uuid(),
+user_idUUIDNOTNULL,
+org_idUUIDNOTNULL,
+provider_keyTEXTNOTNULLREFERENCESintegration_providers(key),
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+16
+5
+
+--- PAGE 6 ---
+external_account_idTEXT,
+external_account_nameTEXT,
+scopesTEXT[]NOTNULLDEFAULT'{}',
+access_token_encBYTEA,
+refresh_token_encBYTEA,
+token_key_idTEXT,
+expires_atTIMESTAMPTZ,
+refresh_expires_atTIMESTAMPTZ,
+token_statusTEXTNOTNULLDEFAULT'active', -- active, expired, revoked, 
+error
+auth_typeTEXTNOTNULL, -- oauth2, api_key, app_password
+config_jsonJSONBNOTNULLDEFAULT'{}',
+last_tested_atTIMESTAMPTZ,
+last_error_codeTEXT,
+last_error_messageTEXT,
+created_atTIMESTAMPTZNOTNULLDEFAULTnow(),
+updated_atTIMESTAMPTZNOTNULLDEFAULTnow(),
+UNIQUE(org_id, user_id, provider_key, external_account_id)
+);
+CREATETABLEoauth_connect_states(
+idUUIDPRIMARYKEYDEFAULTgen_random_uuid(),
+user_idUUIDNOTNULL,
+org_idUUIDNOTNULL,
+provider_keyTEXTNOTNULL,
+stateTEXTNOTNULLUNIQUE,
+code_verifierTEXT,
+redirect_uriTEXTNOTNULL,
+requested_scopesTEXT[]NOTNULLDEFAULT'{}',
+expires_atTIMESTAMPTZNOTNULL,
+used_atTIMESTAMPTZ,
+created_atTIMESTAMPTZNOTNULLDEFAULTnow()
+);
+CREATETABLEintegration_events(
+idUUIDPRIMARYKEYDEFAULTgen_random_uuid(),
+org_idUUIDNOTNULL,
+user_idUUID,
+integration_idUUID,
+provider_keyTEXTNOTNULL,
+event_typeTEXTNOTNULL, -- connect_started, callback_received, 
+token_refreshed, test_succeeded, test_failed, disconnected
+statusTEXTNOTNULL, -- pending, success, failure
+request_idTEXT,
+error_codeTEXT,
+messageTEXT,
+payload_jsonJSONBNOTNULLDEFAULT'{}',
+6
+
+--- PAGE 7 ---
+created_atTIMESTAMPTZNOTNULLDEFAULTnow()
+);
+Browser and publishing tables:
+CREATETABLEbrowser_session_vault(
+idUUIDPRIMARYKEYDEFAULTgen_random_uuid(),
+org_idUUIDNOTNULL,
+provider_keyTEXTNOTNULL,
+account_labelTEXTNOTNULL,
+storage_state_encBYTEA,
+storage_key_idTEXT,
+session_statusTEXTNOTNULLDEFAULT'unknown', -- valid, stale, 
+login_required, locked, challenge_required
+last_verified_atTIMESTAMPTZ,
+last_refresh_atTIMESTAMPTZ,
+last_error_codeTEXT,
+last_error_messageTEXT,
+mfa_modeTEXT, -- none, manual_otp, totp_vaulted, passkey_manual
+created_atTIMESTAMPTZNOTNULLDEFAULTnow(),
+updated_atTIMESTAMPTZNOTNULLDEFAULTnow(),
+UNIQUE(org_id, provider_key, account_label)
+);
+CREATETABLEbrowser_runs(
+idUUIDPRIMARYKEYDEFAULTgen_random_uuid(),
+org_idUUIDNOTNULL,
+user_idUUID,
+provider_keyTEXTNOTNULL,
+objectiveTEXTNOTNULL, -- publish_post, verify_draft, 
+restore_session
+statusTEXTNOTNULL, -- queued, running, blocked, succeeded, 
+failed, needs_human
+campaign_idUUID,
+session_idUUIDREFERENCESbrowser_session_vault(id),
+started_atTIMESTAMPTZ,
+finished_atTIMESTAMPTZ,
+current_urlTEXT,
+summaryTEXT,
+error_codeTEXT,
+error_messageTEXT,
+created_atTIMESTAMPTZNOTNULLDEFAULTnow()
+);
+CREATETABLEbrowser_run_artifacts(
+idUUIDPRIMARYKEYDEFAULTgen_random_uuid(),
+7
+
+--- PAGE 8 ---
+browser_run_idUUIDNOTNULLREFERENCESbrowser_runs(id) ONDELETECASCADE,
+artifact_typeTEXTNOTNULL, -- screenshot, trace_zip, html_snapshot, 
+console_log
+storage_uriTEXTNOTNULL,
+redactedBOOLEANNOTNULLDEFAULTtrue,
+created_atTIMESTAMPTZNOTNULLDEFAULTnow()
+);
+CREATETABLEmarketing_campaigns(
+idUUIDPRIMARYKEYDEFAULTgen_random_uuid(),
+org_idUUIDNOTNULL,
+created_byUUID,
+vertical_keyTEXT,
+campaign_nameTEXTNOTNULL,
+objectiveTEXTNOTNULL,
+offer_jsonJSONBNOTNULLDEFAULT'{}',
+strategy_jsonJSONBNOTNULLDEFAULT'{}',
+content_jsonJSONBNOTNULLDEFAULT'{}',
+statusTEXTNOTNULL, -- draft, strategy_ready, content_generated, 
+human_review_required, approved, scheduled, publishing, published, 
+partial_failed, failed, archived
+approval_requiredBOOLEANNOTNULLDEFAULTtrue,
+approved_byUUID,
+approved_atTIMESTAMPTZ,
+scheduled_forTIMESTAMPTZ,
+timezoneTEXT,
+created_atTIMESTAMPTZNOTNULLDEFAULTnow(),
+updated_atTIMESTAMPTZNOTNULLDEFAULTnow()
+);
+CREATETABLEpublishing_attempts(
+idUUIDPRIMARYKEYDEFAULTgen_random_uuid(),
+campaign_idUUIDNOTNULLREFERENCESmarketing_campaigns(id) ONDELETE
+CASCADE,
+provider_keyTEXTNOTNULL,
+channel_keyTEXTNOTNULL, -- gmail, facebook_page, instagram_business, 
+linkedin, x, wordpress
+transport_modeTEXTNOTNULL, -- api, browser
+idempotency_keyTEXTNOTNULL,
+statusTEXTNOTNULL, -- queued, running, success, retryable_failure, 
+terminal_failure, blocked
+external_post_idTEXT,
+provider_response_jsonJSONBNOTNULLDEFAULT'{}',
+error_codeTEXT,
+error_messageTEXT,
+started_atTIMESTAMPTZ,
+finished_atTIMESTAMPTZ,
+created_atTIMESTAMPTZNOTNULLDEFAULTnow(),
+8
+
+--- PAGE 9 ---
+UNIQUE(channel_key, idempotency_key)
+);
+Recommended entity relationship sketch:
+Provider comparison
+The cleanest way to reason about your provider estate is to split it into official user-authorized business
+connectors and API-key creative/delivery services.
+Official business connectors
+Provider Minimum useful scopes /
+permissions
+Redirect URI
+pattern Docs / portal Rate limits / quotas Complexity
+Google
+Workspace
+openid email profile, 
+gmail.send, 
+calendar.events for sending
+mail and creating calendar
+events. Web-server OAuth is the
+standard flow. 
+/api/v1/
+integrations/
+google/
+callback
+Google Auth
+Platform,
+Gmail API,
+Calendar API
+docs. 
+Gmail: 1,200,000 quota
+units/min/project and
+6,000 quota units/min/
+user/project; Calendar:
+10,000 req/min/project
+and 600 req/min/user/
+project. Use
+exponential backoff on 
+rateLimitExceeded.
+Medium
+emits uses powers
+produces
+launches
+USER_INTEGRATIONS
+INTEGRATION_EVENTS OAUTH_CONNECT_STATES
+BROWSER_SESSION_VAULT
+BROWSER_RUNS
+BROWSER_RUN_ARTIFACTS
+MARKETING_CAMPAIGNS
+PUBLISHING_ATTEMPTS
+17
+18
+19
+9
+
+--- PAGE 10 ---
+Provider Minimum useful scopes /
+permissions
+Redirect URI
+pattern Docs / portal Rate limits / quotas Complexity
+Meta Pages /
+Instagram
+Facebook Pages: 
+pages_manage_posts, 
+pages_read_engagement, 
+pages_show_list; Instagram
+publishing needs 
+instagram_basic, 
+instagram_content_publish,
+plus page/engagement
+permissions depending on flow. 
+/api/v1/
+integrations/
+meta/
+callback
+Meta
+Developers,
+Pages API,
+Instagram
+Platform. 
+Graph API limits vary by
+app/user/business
+context; Marketing API
+has separate limits;
+Instagram content
+publishing is also
+constrained, and Meta
+documents rate limiting
+separately. An official
+Meta blog also notes a
+25-posts-per-24h cap
+for IG content
+publishing. 
+High
+X
+tweet.read, tweet.write, 
+users.read, 
+offline.access; add 
+media.write for image
+uploads, and dm.read/
+dm.write only if you truly need
+DMs. PKCE is recommended. 
+/api/v1/
+integrations/
+x/callback
+X Developer
+App settings,
+OAuth 2.0 with
+PKCE docs. 
+Endpoint-specific. X’s
+docs publish per-
+endpoint limits; tweet
+creation docs note user
+limits such as 200
+POSTs/15 minutes and
+300 POSTs/3 hours for
+certain create/delete
+flows. 
+Medium
+Slack
+chat:write, 
+channels:read, 
+users:read; often add 
+users:read.email if email
+mapping is required. OAuth v2
+install flow. 
+/api/v1/
+integrations/
+slack/
+callback
+Slack OAuth v2
+and methods
+docs. 
+Tiered limits; 
+chat.postMessage
+is effectively about 1
+message/sec/channel
+with workspace-wide
+constraints. 
+Medium
+Notion
+Notion now frames permissions
+as capabilities on public
+connections rather than the
+classic “scope wording” used by
+some providers. Use a public
+connection acting on behalf of the
+user , with only the capabilities you
+need. 
+/api/v1/
+integrations/
+notion/
+callback
+Notion
+Developers,
+public
+connections
+docs. 
+Rate-limited; exact
+limits should be verified
+in the current Notion
+API reference during
+implementation. In this
+research pass, the
+public-connections docs
+were confirmed, but
+the exact quota page
+was not fully captured. 
+Medium
+20
+21
+22
+23
+24
+25
+26
+27
+28
+14
+14
+14
+10
+
+--- PAGE 11 ---
+Provider Minimum useful scopes /
+permissions
+Redirect URI
+pattern Docs / portal Rate limits / quotas Complexity
+WordPress.com /
+Self-hosted
+WordPress
+WordPress.com uses OAuth2 and
+scopes; many integrations begin
+with broad site access. Self-hosted
+WordPress generally uses
+Application Passwords over Basic
+Auth for REST API access unless
+you add an OAuth plugin. 
+/api/v1/
+integrations/
+wordpress/
+callback for
+WordPress.com
+WordPress.com
+Developer
+docs;
+WordPress.org
+Application
+Password docs.
+WordPress.com
+publishes responsible-
+use guidance rather
+than a simple universal
+numeric rate table in
+the docs captured here;
+self-hosted limits vary
+by host/CDN/WAF. 
+Medium
+Delivery and creative services
+Provider Auth model Redirect
+URI Docs / portalRate limits / quotas Complexity
+SendGrid
+API key with 
+Mail Send
+permission; verify
+authenticated
+sender or domain
+first. 
+None
+Twilio
+SendGrid
+docs. 
+Endpoint-specific via X-
+RateLimit-* headers;
+429 on exceed. 
+Low
+Replicate API token None
+Replicate
+HTTP API
+and
+predictions
+docs. 
+600 prediction-creation
+requests/min; 3,000
+other endpoint requests/
+min. 
+Low
+Stability
+AI
+API key in
+Authorization
+header
+None Stability API
+docs. 
+150 requests per 10
+seconds; 429 and 60-
+second timeout if
+exceeded. 
+Low
+Hugging
+Face
+HF_TOKEN / user
+access token None
+HF Inference
+Providers
+and Hub
+docs. 
+Hub-wide rate limits are
+tiered over 5-minute
+windows; free users
+currently see 1,000 API
+requests and 5,000
+resolver requests per
+window, with higher tiers
+above that. Provider/
+model-specific serving
+behavior may vary. 
+Low
+A practical note for your existing product: LinkedIn belongs on your roadmap even though it was not in
+your requested comparison table, because it is central to your current marketing UX. LinkedIn requires 3-
+29 30
+31
+32
+33 34
+35
+36
+37
+38
+39
+40
+11
+
+--- PAGE 12 ---
+legged OAuth for member authorization, w_member_social for member posting, and additional
+marketing scopes/products often require explicit approval and later tier elevation. 
+FastAPI sample routes and token refresh pattern
+A compact provider-agnostic FastAPI approach:
+fromdatetimeimportdatetime, timedelta, timezone
+fromfastapiimportAPIRouter, Depends, HTTPException
+fromfastapi.responsesimportRedirectResponse
+importsecrets
+importhttpx
+router= APIRouter(prefix="/api/v1/integrations", tags=["integrations"])
+PROVIDERS= {
+"google": {
+"authorize_url": "https://accounts.google.com/o/oauth2/v2/auth",
+"token_url": "https://oauth2.googleapis.com/token",
+"client_id_env": "GOOGLE_CLIENT_ID",
+"client_secret_env": "GOOGLE_CLIENT_SECRET",
+"redirect_uri_env": "GOOGLE_REDIRECT_URI",
+"scopes": [
+"openid",
+"email",
+"profile",
+"https://www.googleapis.com/auth/gmail.send",
+"https://www.googleapis.com/auth/calendar.events",
+],
+"access_type": "offline",
+"prompt": "consent",
+}
+}
+@router.get("/{provider}/connect")
+asyncdefconnect_provider(provider: str,
+current_user=Depends(get_current_user)):
+cfg= PROVIDERS.get(provider)
+ifnotcfg:
+raiseHTTPException(status_code=404, detail="Unknown provider")
+state= secrets.token_urlsafe(32)
+awaitstore_oauth_state(
+user_id=current_user.id,
+org_id=current_user.org_id,
+provider=provider,
+state=state,
+41
+12
+
+--- PAGE 13 ---
+redirect_uri=settings[cfg["redirect_uri_env"]],
+requested_scopes=cfg["scopes"],
+expires_at=datetime.now(timezone.utc) + timedelta(minutes=10),
+)
+params= {
+"client_id": settings[cfg["client_id_env"]],
+"redirect_uri": settings[cfg["redirect_uri_env"]],
+"response_type": "code",
+"scope": " ".join(cfg["scopes"]),
+"state": state,
+}
+ifprovider=="google":
+params["access_type"] = cfg["access_type"]
+params["prompt"] = cfg["prompt"]
+url= httpx.URL(cfg["authorize_url"]).copy_add_params(params)
+returnRedirectResponse(str(url))
+@router.get("/{provider}/callback")
+asyncdefcallback_provider(provider: str, code: str, state: str,
+current_user=Depends(get_current_user)):
+cfg= PROVIDERS.get(provider)
+ifnotcfg:
+raiseHTTPException(status_code=404, detail="Unknown provider")
+state_row= awaitconsume_valid_oauth_state(provider=provider, state=state,
+user_id=current_user.id)
+ifnotstate_row:
+raiseHTTPException(status_code=400, detail="Invalid or expired state")
+asyncwithhttpx.AsyncClient(timeout=20) asclient:
+resp= awaitclient.post(
+cfg["token_url"],
+data={
+"code": code,
+"client_id": settings[cfg["client_id_env"]],
+"client_secret": settings[cfg["client_secret_env"]],
+"redirect_uri": settings[cfg["redirect_uri_env"]],
+"grant_type": "authorization_code",
+},
+headers={"Content-Type": "application/x-www-form-urlencoded"},
+)
+resp.raise_for_status()
+tokens= resp.json()
+13
+
+--- PAGE 14 ---
+expires_at= datetime.now(timezone.utc) +
+timedelta(seconds=tokens.get("expires_in", 3600))
+awaitupsert_user_integration(
+org_id=current_user.org_id,
+user_id=current_user.id,
+provider_key=provider,
+scopes=tokens.get("scope", "").split(),
+access_token=tokens["access_token"],
+refresh_token=tokens.get("refresh_token"),
+expires_at=expires_at,
+auth_type="oauth2",
+)
+returnRedirectResponse(f"{settings.APP_PUBLIC_BASE_URL}/integrations?
+connected={provider}")
+Token refresh utility:
+asyncdefget_valid_google_access_token(integration) ->str:
+ifintegration.expires_atandintegration.expires_at>
+datetime.now(timezone.utc) + timedelta(minutes=5):
+returndecrypt_token(integration.access_token_enc,
+integration.token_key_id)
+refresh_token= decrypt_token(integration.refresh_token_enc,
+integration.token_key_id)
+asyncwithhttpx.AsyncClient(timeout=20) asclient:
+resp= awaitclient.post(
+"https://oauth2.googleapis.com/token",
+data={
+"client_id": settings.GOOGLE_CLIENT_ID,
+"client_secret": settings.GOOGLE_CLIENT_SECRET,
+"refresh_token": refresh_token,
+"grant_type": "refresh_token",
+},
+headers={"Content-Type": "application/x-www-form-urlencoded"},
+)
+resp.raise_for_status()
+data= resp.json()
+new_expires_at= datetime.now(timezone.utc) +
+timedelta(seconds=data["expires_in"])
+awaitupdate_integration_tokens(
+integration_id=integration.id,
+access_token=data["access_token"],
+refresh_token=data.get("refresh_token"), # usually absent on refresh
+14
+
+--- PAGE 15 ---
+expires_at=new_expires_at,
+)
+returndata["access_token"]
+Tool endpoint example for Gmail send:
+@router.post("/../tools/gmail/send")
+asyncdefsend_gmail(payload: SendEmailIn,
+current_user=Depends(get_current_user)):
+integration= awaitget_user_integration(current_user.org_id,
+current_user.id, "google")
+ifnotintegration:
+raiseHTTPException(status_code=400, detail="Google integration not 
+connected")
+access_token= awaitget_valid_google_access_token(integration)
+raw_message= build_rfc822_base64url(
+to=payload.to,
+subject=payload.subject,
+body_text=payload.body_text,
+body_html=payload.body_html
+)
+asyncwithhttpx.AsyncClient(timeout=30) asclient:
+resp= awaitclient.post(
+"https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
+headers={"Authorization": f"Bearer {access_token}"},
+json={"raw": raw_message},
+)
+ifresp.status_code>=400:
+awaitrecord_attempt_failure(..., provider_response=resp.text)
+raiseHTTPException(status_code=502, detail="Gmail send failed")
+awaitrecord_attempt_success(..., provider_response=resp.json())
+return{"ok": True, "provider_message_id": resp.json().get("id")}
+A “test connection” endpoint should call a low-risk identity/read route per provider:
+Google: profile or lightweight Gmail/Calendar call
+Slack: auth.test
+Notion: retrieve current user/workspace or search a permitted page
+WordPress.com: lightweight site listing
+SendGrid: sandbox mail send or lightweight authenticated request
+X: GET /2/users/me
+Meta: page list or permission sample call
+• 
+• 42
+• 
+• 
+• 
+• 
+• 
+15
+
+--- PAGE 16 ---
+Browser agent hardening
+The browser operator should be opinionated and conservative.
+Session vault design
+Store Playwright storageState snapshots encrypted at rest.
+Track provider , account label, health status, last verified time, MFA mode, and stale-session reason.
+Never check session state files into the repo. Playwright explicitly warns these files may contain
+sensitive cookies and headers that can impersonate the user . 
+Regenerate or invalidate snapshots after login page detection, password changes, account
+challenges, or suspicious-activity checkpoints.
+Run states
+queued -> starting -> restoring_session -> executing -> challenge_required | 
+login_required | needs_human | succeeded | failed
+Selector strategy
+Use a layered selector policy:
+accessibility-first locators: getByRole, getByLabel, getByText
+stable attributes such as name, aria-label, or semantic form structures
+provider-specific selector manifests versioned by site and page variant
+fuzzy fallback only as last resort
+hard-fail with screenshot + trace when selector confidence drops below threshold
+This aligns with Playwright’s locator model, where locators are the core of auto-waiting and retryability. 
+Artifacts and observability
+screenshot at every critical step
+full trace zip on first retry
+video on first retry for browser runs
+redacted HTML snapshot on failure
+console/network logs attached to the run
+Playwright documents trace viewer , attachments, and retry-triggered tracing patterns that map well to this
+design. 
+2FA and challenge handling
+Recommended policy:
+personal accounts: human-in-the-loop only for OTP/passkey prompts
+• 
+• 
+• 
+43
+• 
+1. 
+2. 
+3. 
+4. 
+5. 
+44
+• 
+• 
+• 
+• 
+• 
+45
+• 
+16
+
+--- PAGE 17 ---
+shared company accounts: optionally support vaulted TOTP secrets only with explicit customer opt-
+in, KMS-backed encryption, strict RBAC, and audit
+never attempt to bypass CAPTCHA; pause and request human assistance
+treat “returned to login page” as session_stale, not “publish completed”
+Retry logic
+DOM retry: 3 attempts with 1s / 3s / 7s backoff
+page reload retry: 1 attempt if critical element absent
+full browser rerun: maximum 1 for publish, 2 for session restore
+stale-session detection: if login form or consent wall is detected, branch to restore flow
+idempotency: prevent duplicate posts by hashing channel + campaign + content + scheduled time
+Playwright flow example
+asyncdeflinkedin_publish(run, session):
+context= awaitnew_context_from_encrypted_storage_state(session)
+page= awaitcontext.new_page()
+awaitpage.goto("https://www.linkedin.com/feed/",
+wait_until="domcontentloaded")
+ifawaitpage.locator("input[name='session_key']").count()> 0:
+returnblocked("login_required")
+start_post= page.get_by_role("button", name=re.compile("Start a post",
+re.I))
+awaitstart_post.wait_for(timeout=10000)
+awaitstart_post.click()
+editor= page.locator("[contenteditable='true']").first
+awaiteditor.fill(run.payload["body"])
+ifrun.payload.get("image_path"):
+await
+page.locator("input[type='file']").set_input_files(run.payload["image_path"])
+awaitpage.screenshot(path=checkpoint_path(run.id, "pre_publish.png"))
+awaitpage.get_by_role("button", name=re.compile("^Post$", re.I)).click()
+awaitexpect(page.get_by_text(re.compile("Your post is now live|Post 
+successful", re.I))).to_be_visible(timeout=15000)
+returnsuccess()
+Marketing engine hardening
+The marketing engine should be built around a strict, stateful campaign model.
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+17
+
+--- PAGE 18 ---
+Campaign lifecycle
+Content generation contract
+Every generated artifact should be represented as structured JSON and validated before publish:
+{
+"campaign_id": "uuid",
+"objective": "lead_generation",
+"offer": {
+"headline": "Free summer HVAC inspection",
+"cta": "Book now",
+"landing_url": "https://example.com/hvac"
+},
+"audience": {
+"geo": ["Phoenix, AZ"],
+"persona": "homeowner"
+},
+"channels": [
+{
+"channel": "facebook_page",
+"body": "...",
+draft
+strategy_ready
+content_generated
+human_review_required
+approved
+scheduled
+publishing
+publishedpartial_failedfailed
+archived
+18
+
+--- PAGE 19 ---
+"image_prompt": "...",
+"hashtags": ["#HVAC", "#HomeService"],
+"approval_required": true
+},
+{
+"channel": "email",
+"subject": "...",
+"body_html": "...",
+"body_text": "..."
+}
+],
+"assets": [
+{
+"kind": "image",
+"provider": "replicate",
+"status": "ready"
+}
+],
+"utm": {
+"source": "facebook",
+"medium": "social",
+"campaign": "summer_hvac_inspection"
+}
+}
+AI provider routing
+A robust routing layer should separate tasks:
+strategy / research / planning: primary reasoning model
+structured content conversion: model with strong JSON adherence
+copy polishing and variants: cheaper text model
+image generation: specialized image provider pool
+safety / policy linting: lightweight classifier or rules engine
+Image provider priority
+brand-approved existing assets
+Replicate official/stable image model
+Stability AI image endpoint
+Hugging Face inference provider fallback
+Do not invent fake images or placeholder “success” assets if all providers fail. Replicate exposes prediction
+APIs and rate limits; Stability documents its REST API and rate limiting; Hugging Face exposes Inference
+Providers across text-to-image and other tasks. 
+Publishing console
+• 
+• 
+• 
+• 
+• 
+1. 
+2. 
+3. 
+4. 
+46
+19
+
+--- PAGE 20 ---
+The UI should show, per channel:
+channel connection status
+target account / page / workspace / site
+preview of exact body/media that will be sent
+transport mode: official API or browser
+scheduled time in org timezone
+test publish / dry run result
+last attempt status
+provider response or error
+artifacts: screenshot, trace, and raw JSON response where applicable
+Scheduler
+Use a durable queue and worker pool. Minimum requirements:
+idempotency key per channel publish
+distributed lock on scheduled campaign execution
+clock-safe scheduling in UTC + org timezone
+exponential backoff on 429/5xx
+immediate terminal failure on 401/403 scope errors until user reconnects
+dead-letter queue for repeated failures
+Analytics and publishing attempt model
+Attribution and analytics should come from attempts, not assumptions:
+publishing_attempts.status
+provider-native response IDs
+UTM-tagged landing URLs
+SendGrid events or Gmail success confirmation
+page/post IDs for social
+event IDs for calendar
+downstream conversion sources like form submission or booking
+A useful daily aggregate table:
+CREATETABLEanalytics_daily(
+org_idUUIDNOTNULL,
+campaign_idUUID,
+channel_keyTEXTNOTNULL,
+dayDATENOTNULL,
+impressionsBIGINTDEFAULT0,
+clicksBIGINTDEFAULT0,
+leadsBIGINTDEFAULT0,
+sendsBIGINTDEFAULT0,
+opensBIGINTDEFAULT0,
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+20
+
+--- PAGE 21 ---
+repliesBIGINTDEFAULT0,
+booked_callsBIGINTDEFAULT0,
+PRIMARYKEY(org_id, campaign_id, channel_key, day)
+);
+Security, error handling, monitoring, testing, and rollout
+Security checklist
+encrypt access tokens, refresh tokens, session state, and vaulted MFA seeds
+put provider app credentials in secret storage, never in frontend bundles or repos 
+exact redirect URI registration and verification 
+per-org authorization checks on every tool route
+scoped tokens only; request least privilege
+rotate API keys and app secrets on schedule
+redact screenshots/logs before storage
+store audit events immutably
+short-lived signed URLs for artifact retrieval
+separate prod/staging/dev provider apps
+disconnect flow must revoke where supported and wipe locally stored tokens
+no browser automation on personal accounts without explicit consent and audit
+Monitoring and alerting
+Minimal telemetry set:
+OAuth connect success rate by provider
+token refresh success rate by provider
+401/403/429 rates by endpoint/provider
+browser run success and stale-session rate
+publish latency p50/p95
+image generation success rate by provider
+campaign publish completion rate
+email send success and bounce rate
+queue depth and job age
+scheduler lag
+artifact redaction failures
+OpenTelemetry and Prometheus are well-suited to this stack; OpenTelemetry documents Python auto-
+instrumentation and Prometheus remains the standard metrics/alerting toolkit. 
+Tests
+Required test layers:
+unit tests for token encryption, token refresh, idempotency keys
+contract tests per provider callback and refresh response
+• 
+• 47
+• 48
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+49
+• 
+• 
+21
+
+--- PAGE 22 ---
+integration tests against provider sandboxes or test accounts
+browser smoke tests for selector health on critical pages
+approval workflow tests
+scheduler idempotency tests
+failure-injection tests for 401/403/429/5xx
+migration tests for DB schema changes
+CI/CD
+Recommended release policy:
+migrations run first, app deploy second, background workers third
+canary rollout on one worker pool before full traffic
+feature flags for each integration and publish path
+kill switch for browser publishing per provider
+provider-config validation as a startup check
+synthetic health jobs for connect/test flows every 15 minutes
+Rollback plan
+keep previous app image and previous worker image deployable
+all publish jobs idempotent and replay-safe
+schema additions should be backward compatible for at least one release
+disable individual integrations by feature flag if provider outage occurs
+drain scheduler before rollback if migration is non-trivial
+preserve audit artifacts regardless of rollback
+Market research track
+Recommended initial vertical
+Given the product you are building, the most attractive initial wedge is local home services: HVAC,
+plumbing, electrical, and roofing. The reason is not just size; it is the fit between the vertical’s operating
+model and your product’s automations:
+leads arrive continuously and decay rapidly if not answered
+demand is local and channel-measurable
+appointment scheduling and follow-up matter
+operators need review requests and nurture email/SMS
+many firms are small enough to lack an integrated growth stack
+social and ad creative can be localized by city/service/season
+Official Census SUSB data supports the fragmentation thesis. In the 2022 U.S. totals table, plumbing/HVAC
+contractors, electrical contractors, and roofing contractors together account for roughly 210,659 firms and 
+215,975 establishments. The same data shows that about 189,492 of those firms are in enterprises with
+fewer than 20 employees. That is an unusually favorable shape for a vertical SaaS + automation platform. 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+4
+22
+
+--- PAGE 23 ---
+The same Census table also shows why adjacent verticals are tempting but less ideal for your first wedge.
+Law firms and dental practices are also highly fragmented, but both bring tighter compliance, higher
+reputation sensitivity, and more complicated intake/privacy issues. Home services is the better starting
+point because it is large, service-driven, and operationally simpler . BLS also shows durable demand and
+employment growth across relevant trades such as electricians and plumbers/pipefitters, reinforcing the
+category’s continuity. 
+A simple selection matrix:
+Criterion Weight Home servicesDental Law firms
+Market fragmentation 25 5 4 5
+Channel standardization 20 5 4 3
+Compliance burden 15 4 2 2
+Speed-to-value 15 5 4 3
+Ability to automate browser/API workflows15 5 3 3
+Data availability for research 10 5 4 4
+Recommendation: start with residential home services SMBs; second wedge can be multi-location
+specialty clinics if you later want higher ARPU.
+Research design to study 100 companies, 50 experts, and 100 users
+Use a structured program in three streams running in parallel.
+Company research stream
+Build a 100-company panel across:
+25 HVAC
+25 plumbing / plumbing-HVAC mixed
+25 electrical
+25 roofing
+Balance by geography, firm size, and digital maturity. Sampling sources should prioritize official or primary
+data wherever possible:
+Census SUSB and CBP for industry/frame design 
+company websites and public booking forms
+Google Ads Transparency Center for paid creative review 
+Meta Ad Library for observable ads and creative patterns 
+trade associations such as ACCA, PHCC, and NECA for market access and expert discovery 
+100 company attributes to collect
+5
+• 
+• 
+• 
+• 
+• 50
+• 
+• 51
+• 52
+• 53
+23
+
+--- PAGE 24 ---
+Collect these in a normalized spreadsheet or research DB:
+company name 
+website 
+HQ city 
+states served 
+primary trade 
+secondary trade 
+business model (service/installation/both) 
+residential/commercial mix 
+team-size estimate 
+owner-led or manager-led 
+years in business 
+franchise vs independent 
+service area radius 
+financing offered 
+emergency service offered 
+memberships / certifications 
+phone prominently displayed 
+web form present 
+online booking present 
+chat widget present 
+SMS option present 
+Google reviews count 
+Google rating 
+Yelp presence 
+BBB presence 
+Facebook page present 
+Instagram present 
+LinkedIn present 
+YouTube present 
+X present 
+posting frequency by channel 
+page response speed claim 
+advertised offer type 
+seasonal offer cadence 
+service-page count 
+city landing pages count 
+SEO blog present 
+lead magnet present 
+coupon page present 
+job application page present 
+careers page quality 
+branded vehicles shown 
+before/after visuals shown 
+testimonials present 
+case studies present 
+1. 
+2. 
+3. 
+4. 
+5. 
+6. 
+7. 
+8. 
+9. 
+10. 
+11. 
+12. 
+13. 
+14. 
+15. 
+16. 
+17. 
+18. 
+19. 
+20. 
+21. 
+22. 
+23. 
+24. 
+25. 
+26. 
+27. 
+28. 
+29. 
+30. 
+31. 
+32. 
+33. 
+34. 
+35. 
+36. 
+37. 
+38. 
+39. 
+40. 
+41. 
+42. 
+43. 
+44. 
+45. 
+24
+
+--- PAGE 25 ---
+trust badges present 
+guarantee / warranty language 
+call tracking number usage 
+ad tracking templates visible 
+UTM usage observed 
+Google search ads detected 
+LSAs / local service ads detected 
+Meta ads detected 
+retargeting pixel hints 
+newsletter signup present 
+review-request flow observed 
+estimate-request friction 
+booking friction 
+mobile site performance score 
+page speed estimate 
+forms per funnel 
+CTA consistency 
+CTA-to-offer match 
+landing page specificity 
+city personalization 
+seasonal personalization 
+pricing visibility 
+financing CTA prominence 
+call answer quality mystery-shop score 
+form response time mystery-shop score 
+quote turnaround promise 
+appointment confirmation flow 
+reminder flow 
+post-job follow-up flow 
+upsell / maintenance-plan promotion 
+email nurture observed 
+SMS nurture observed 
+referral ask observed 
+review ask timing 
+CRM / FSM stack clues 
+booking software clues 
+chat vendor clues 
+analytics vendor clues 
+CMS / site stack 
+schema markup presence 
+tracking consent banner 
+image style quality score 
+copy clarity score 
+differentiation clarity 
+brand maturity score 
+service-area density score 
+ad-to-landing consistency score 
+brand trust score 
+46. 
+47. 
+48. 
+49. 
+50. 
+51. 
+52. 
+53. 
+54. 
+55. 
+56. 
+57. 
+58. 
+59. 
+60. 
+61. 
+62. 
+63. 
+64. 
+65. 
+66. 
+67. 
+68. 
+69. 
+70. 
+71. 
+72. 
+73. 
+74. 
+75. 
+76. 
+77. 
+78. 
+79. 
+80. 
+81. 
+82. 
+83. 
+84. 
+85. 
+86. 
+87. 
+88. 
+89. 
+90. 
+91. 
+92. 
+93. 
+25
+
+--- PAGE 26 ---
+offer strength score 
+follow-up maturity score 
+omnichannel maturity score 
+estimated inbound lead dependence 
+estimated repeat-business dependence 
+top 3 observable growth weaknesses 
+top 3 automation opportunities
+Expert interview stream
+Recruit 50 experts across:
+owners/operators
+marketing agency operators in home services
+call center / booking experts
+field service software consultants
+association leaders / trainers
+local SEO specialists
+paid media buyers
+franchise operators
+review/reputation consultants
+dispatch / CSR managers
+Recruitment channels:
+ACCA, PHCC, NECA local chapters and events 
+LinkedIn outreach
+trade podcasts / newsletters
+conference attendee lists where permitted
+vendor partner ecosystems
+Expert interview guide
+Use 45-minute semi-structured interviews:
+what channels produce highest-quality leads
+where lead loss happens most often
+what follow-up tasks fall through the cracks
+what “marketing automation” tools are bought but underused
+where CSRs/dispatchers create bottlenecks
+which metrics owners trust vs ignore
+what seasonal work changes the workflow
+which tasks owners hate but pay for
+what integrations routinely break
+what permissions / account-access problems block automation
+how review generation is managed
+how photos, offers, and ad creative are produced
+what would make a system 10x better than current tools
+94. 
+95. 
+96. 
+97. 
+98. 
+99. 
+100. 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 53
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+26
+
+--- PAGE 27 ---
+User research stream
+Recruit 100 end users segmented into:
+40 owners / GMs
+20 office managers / dispatchers
+20 marketers / agency operators
+20 CSRs / appointment setters
+Sample by firm size:
+40 firms with <10 employees
+40 firms with 10–49 employees
+20 firms with 50–199 employees
+Research methods:
+20 workflow shadowing sessions
+40 problem interviews
+20 prototype usability tests
+20 pricing/positioning interviews
+User interview guide
+Focus on observed workflows, not opinions:
+show me how a new lead arrives
+show me how it becomes a booked appointment
+what happens if nobody responds in 5, 30, 120 minutes
+how do you request reviews
+where do photos and social posts come from
+who approves outbound messaging
+what numbers do you look at daily
+what breaks most often with current tools
+what did you pay for and stop using
+if this system worked perfectly, what would it replace
+Timeline, deliverables, and success metrics
+Suggested 16-week research program:
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+27
+
+--- PAGE 28 ---
+Deliverables
+vertical-selection memo
+100-company structured dataset
+50-expert transcript library with coded themes
+100-user insight report
+workflow maps for lead capture, booking, review ask, nurture, publishing
+feature priority matrix
+prototype usability report
+pricing/packaging hypotheses
+12-month product roadmap
+Research success metrics
+90%+ fill rate on company-attribute dataset
+50 expert interviews completed
+100 user interviews/tests completed
+top 10 workflow pain points quantified
+at least 3 repeatable “must-have” automations identified
+1 validated beachhead ICP
+1 validated ROI narrative tied to booked jobs or reduced lead leakage
+Twelve-month roadmap to build the 10x product
+Quarter one
+Ship the platform spine:
+backend-owned OAuth/connectors for Google, Slack, Notion, SendGrid
+token vault, refresh service, integration tests, audit events
+campaign state machine and publishing attempts table
+image generation routing with hard failure states
+SendGrid sender verification setup UX
+browser session vault and manual refresh flows
+internal publishing console with dry runs
+2026-06-07
+2026-06-14
+2026-06-21
+2026-06-28
+2026-07-05
+2026-07-12
+2026-07-19
+2026-07-26
+2026-08-02
+2026-08-09
+2026-08-16
+2026-08-23
+2026-08-30
+2026-09-06
+Vertical hypothesis and scoring
+Research ops, screener, CRM
+Build 100-company panel
+Recruit 50 experts
+Competitive teardowns and scoring
+Recruit 100 users
+Conduct interviews
+Interviews and shadowing
+Prototype usability tests
+JTBD and workflow mapping
+Feature prioritization
+Positioning and pricing hypotheses
+Setup
+Companyresearch
+Expertinterviews
+Userresearch
+Synthesis
+Research program to design the 10x product
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+28
+
+--- PAGE 29 ---
+Quarter two
+Ship the core home-services wedge:
+vertical templates for HVAC/plumbing/electrical/roofing
+city/service landing-page generator with approval
+Google Business/Profile and review-request workflow if feasible through allowed surfaces
+inbound lead inbox, response SLA tracking, call/form follow-up automation
+Facebook/Instagram and X official publish paths
+LinkedIn browser fallback with robust stale-session detection
+analytics dashboard with attempts, sends, clicks, leads, bookings
+Quarter three
+Make it operationally excellent:
+experimentation engine for offers/creative/subject lines
+rules engine for seasonal campaigns and service reminders
+approval policies by role, channel, and spend
+browser operator human-assist console for MFA/challenges
+canary rollout, synthetic tests, provider outage playbooks
+benchmark dashboards for conversion bottlenecks
+Quarter four
+Build the moat:
+vertical AI playbooks from accumulated results
+best-next-action orchestration across email/social/ads/browser tasks
+attribution model tied to booked jobs and repeat customers
+partner integrations with field-service software where strategy supports it
+multi-location and franchise features
+packaged “growth OS for home services” positioning and pricing
+A useful product packaging hypothesis:
+Starter: official integrations + content + email + review automation
+Growth: scheduler + campaign analytics + social publishing + browser fallback
+Pro: experiments, multi-branch orchestration, human assist, multi-location
+Open questions and limitations
+A few items should be validated during implementation rather than assumed from this report.
+The exact current Notion API numeric rate-limit guidance was not fully captured in this research pass, so
+you should confirm the latest official quota and Retry-After behavior directly in Notion’s current API
+reference at implementation time. The same is partly true for WordPress.com numeric rate limits, where
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+29
+
+--- PAGE 30 ---
+the official docs surfaced responsible-use guidance but not a single universal numeric limit in the material
+captured here. 
+Meta’s quotas are documented, but they are context-dependent across Graph API, Pages, Instagram
+publishing, Business Manager relationships, and Marketing API access tiers, so your code should treat limits
+as dynamic and driven by real responses plus dashboards rather than static constants. 
+Finally, LinkedIn should remain a carefully scoped integration because access to many Marketing and
+Community Management capabilities depends on product approval and ongoing access-tier requirements,
+not just raw OAuth wiring. 
+https://developers.google.com/identity/protocols/oauth2/web-server
+https://developers.google.com/identity/protocols/oauth2/web-server
+https://playwright.dev/docs/auth
+https://playwright.dev/docs/auth
+Usage limits | Gmail
+https://developers.google.com/workspace/gmail/api/reference/quota?utm_source=chatgpt.com
+https://www.census.gov/data/tables/2022/econ/susb/2022-susb-annual.html
+https://www.census.gov/data/tables/2022/econ/susb/2022-susb-annual.html
+https://huggingface.co/docs/inference-providers/index
+https://huggingface.co/docs/inference-providers/index
+https://www.twilio.com/docs/sendgrid/ui/sending-email/sender-verification
+https://www.twilio.com/docs/sendgrid/ui/sending-email/sender-verification
+Best Practices | Authorization Resources
+https://developers.google.com/identity/protocols/oauth2/resources/best-practices?utm_source=chatgpt.com
+https://developers.facebook.com/blog/post/2017/12/18/strict-uri-matching/
+https://developers.facebook.com/blog/post/2017/12/18/strict-uri-matching/
+https://docs.x.com/fundamentals/authentication/oauth-2-0/user-access-token
+https://docs.x.com/fundamentals/authentication/oauth-2-0/user-access-token
+https://api.slack.com/authentication/oauth-v2
+https://api.slack.com/authentication/oauth-v2
+https://developers.notion.com/guides/get-started/public-connections
+https://developers.notion.com/guides/get-started/public-connections
+https://developer .wordpress.com/docs/api/oauth2/
+https://developer .wordpress.com/docs/api/oauth2/
+https://developers.google.com/workspace/guides/configure-oauth-consent
+https://developers.google.com/workspace/guides/configure-oauth-consent
+https://developers.facebook.com/docs/permissions/
+https://developers.facebook.com/docs/permissions/
+54
+55
+56
+1 9 10 17
+2 43
+3 19
+4 5 50
+6 39
+7
+8 16 47
+11
+12
+13 27
+14 54
+15 29 30
+18
+20
+30
+
+--- PAGE 31 ---
+https://developers.facebook.com/documentation/facebook-login/web
+https://developers.facebook.com/documentation/facebook-login/web
+https://developers.facebook.com/docs/graph-api/overview/rate-limiting/
+https://developers.facebook.com/docs/graph-api/overview/rate-limiting/
+https://docs.x.com/fundamentals/authentication/oauth-2-0/authorization-code
+https://docs.x.com/fundamentals/authentication/oauth-2-0/authorization-code
+https://docs.x.com/fundamentals/developer-apps
+https://docs.x.com/fundamentals/developer-apps
+https://docs.x.com/x-api/fundamentals/rate-limits
+https://docs.x.com/x-api/fundamentals/rate-limits
+https://api.slack.com/scopes/chat%3Awrite
+https://api.slack.com/scopes/chat%3Awrite
+https://api.slack.com/apis/rate-limits
+https://api.slack.com/apis/rate-limits
+https://developer .wordpress.com/docs/api/
+https://developer .wordpress.com/docs/api/
+https://docs.sendgrid.com/for-developers/sending-email/getting-started-smtp/
+https://docs.sendgrid.com/for-developers/sending-email/getting-started-smtp/
+https://www.twilio.com/docs/sendgrid/api-reference/mail-send/mail-send
+https://www.twilio.com/docs/sendgrid/api-reference/mail-send/mail-send
+https://www.twilio.com/docs/sendgrid/api-reference/how-to-use-the-sendgrid-v3-api/rate-limits
+https://www.twilio.com/docs/sendgrid/api-reference/how-to-use-the-sendgrid-v3-api/rate-limits
+https://replicate.com/docs/reference/http
+https://replicate.com/docs/reference/http
+https://replicate.com/docs/topics/predictions/rate-limits
+https://replicate.com/docs/topics/predictions/rate-limits
+https://platform.stability.ai/docs/api-reference
+https://platform.stability.ai/docs/api-reference
+https://huggingface.co/docs/hub/rate-limits
+https://huggingface.co/docs/hub/rate-limits
+https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access
+https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access
+https://api.slack.com/methods/auth.test
+https://api.slack.com/methods/auth.test
+https://playwright.dev/docs/locators
+https://playwright.dev/docs/locators
+https://playwright.dev/docs/trace-viewer
+https://playwright.dev/docs/trace-viewer
+21
+22 55
+23
+24
+25
+26
+28
+31
+32
+33
+34
+35
+36
+37 38
+40
+41 56
+42
+44
+45
+31
+
+--- PAGE 32 ---
+https://replicate.com/docs/topics/predictions/create-a-prediction
+https://replicate.com/docs/topics/predictions/create-a-prediction
+RFC 6749 - The OAuth 2.0 Authorization Framework
+https://datatracker .ietf.org/doc/html/rfc6749?utm_source=chatgpt.com
+Getting Started by Example
+https://opentelemetry.io/docs/languages/python/getting-started/?utm_source=chatgpt.com
+https://adstransparency.google.com/
+https://adstransparency.google.com/
+https://www.facebook.com/ads/library
+https://www.facebook.com/ads/library
+https://www.acca.org/
+https://www.acca.org/
+46
+48
+49
+51
+52
+53
+32

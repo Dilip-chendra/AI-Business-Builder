@@ -1,0 +1,125 @@
+{
+  "id": "a2326418-a0af-4e04-b4a8-d99e6abd5ff0",
+  "name": "HomeFix Pro",
+  "niche": "Emergency home repair services",
+  "description": "HomeFix Pro connects you with vetted, licensed contractors for emergency home repairs with transparent pricing and 100% satisfaction guarantee.",
+  "target_audience": "Homeowners aged 30-65 needing urgent repairs",
+  "monetization_model": "Service fees with premium membership options",
+  "brand_tone": "Trustworthy, urgent, and solution-focused",
+  "headline": "24/7 Emergency Home Repairs",
+  "subheading": "Licensed pros ready to fix your HVAC, plumbing, electrical or roofing issues\u2014same day service guaranteed.",
+  "product_pitch": "No more waiting days for repairs\u2014we'll have a pro at your door in hours",
+  "cta_text": "Call Now for Fast Service",
+  "seo_title": "Emergency Home Repair Services | HVAC, Plumbing, Electrical & Roofing",
+  "seo_description": "24/7 emergency home repair services. Licensed pros for HVAC, plumbing, electrical and roofing issues. Same day service guaranteed.",
+  "page_content": {
+    "pain_points": [
+      "Wasting hours making flashcards that don't actually help you retain information",
+      "Not knowing which concepts to focus on before big exams",
+      "Forgetting 80% of what you studied within 48 hours"
+    ],
+    "benefits": [
+      "Same-day service for urgent repairs",
+      "Licensed and background-checked professionals",
+      "Transparent pricing with no hidden fees",
+      "100% satisfaction guarantee"
+    ],
+    "features": [
+      {
+        "title": "24/7 Emergency Service",
+        "description": "We're available nights, weekends and holidays when you need help most.",
+        "icon_hint": "clock"
+      },
+      {
+        "title": "Licensed Professionals",
+        "description": "Every technician is licensed, insured and background-checked for your safety.",
+        "icon_hint": "shield"
+      },
+      {
+        "title": "Price Match Guarantee",
+        "description": "We'll match any licensed competitor's written estimate for the same services.",
+        "icon_hint": "lock"
+      }
+    ],
+    "social_proof": [
+      {
+        "name": "Michelle R.",
+        "role": "Homeowner",
+        "quote": "Had a burst pipe at 2am on a Sunday. HomeFix Pro had a plumber at my door in 90 minutes. Lifesavers!",
+        "rating": 5
+      },
+      {
+        "name": "James L.",
+        "role": "Property Manager",
+        "quote": "We use HomeFix Pro for all our emergency repairs. Their response time beats anyone in the area.",
+        "rating": 5
+      },
+      {
+        "name": "Sarah K.",
+        "role": "Homeowner",
+        "quote": "AC went out during a heatwave. They had it fixed same day when others said 3-day wait. Worth every penny.",
+        "rating": 5
+      }
+    ],
+    "faq": [
+      {
+        "question": "What areas do you serve?",
+        "answer": "We cover all major metro areas with 24/7 availability. Call to confirm service in your neighborhood."
+      },
+      {
+        "question": "Do you charge for estimates?",
+        "answer": "Diagnostic fees apply but are waived if you proceed with our recommended repairs."
+      },
+      {
+        "question": "What payment methods do you accept?",
+        "answer": "All major credit cards, checks, and we offer financing options for major repairs."
+      }
+    ],
+    "pricing_tiers": [
+      {
+        "name": "Emergency Call",
+        "price": "$99",
+        "period": "service call",
+        "features": [
+          "2-hour response window",
+          "Diagnostic included",
+          "Upfront pricing",
+          "6-month warranty"
+        ],
+        "cta": "Call Now",
+        "highlighted": true
+      },
+      {
+        "name": "Priority Membership",
+        "price": "$199",
+        "period": "year",
+        "features": [
+          "1-hour response guarantee",
+          "No service call fees",
+          "10% discount on repairs",
+          "24/7 VIP support line"
+        ],
+        "cta": "Become a Member",
+        "highlighted": false
+      }
+    ],
+    "urgency_text": "Don't wait\u2014emergencies get worse with time. Call now for same-day service.",
+    "trust_badges": [
+      "Licensed & Insured",
+      "24/7 Availability",
+      "Local Professionals",
+      "Satisfaction Guarantee"
+    ],
+    "color_scheme": "sky",
+    "lead_capture": {
+      "headline": "Need urgent repairs?",
+      "description": "Tell us about your issue and we'll dispatch a pro immediately.",
+      "fields": [
+        "Name",
+        "Phone",
+        "Service needed"
+      ],
+      "cta": "Request Emergency Service"
+    }
+  }
+}

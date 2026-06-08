@@ -1,0 +1,132 @@
+{
+  "headline": "Updated Headline For Smoke Test",
+  "subheading": "Science-backed micro-workouts that fit between meetings. No gym required. First workout free.",
+  "cta_text": "Start Your Free Week",
+  "description": "FitFlow Pro delivers personalized 15-minute workouts designed for maximum results with minimal time investment. Our AI-powered platform adapts to your schedule, fitness level, and equipment availability.",
+  "product_pitch": "We combine AI-generated workout plans with human coaching to create the most time-efficient fitness system for professionals. Get stronger, leaner and more energized without sacrificing work performance.",
+  "seo_title": "15-Minute Workouts for Busy Professionals | FitFlow Pro",
+  "seo_description": "Get fit in just 15 minutes/day with personalized workouts designed for busy schedules. 92% of members stick with our program long-term. Try risk-free today.",
+  "page_content": {
+    "pain_points": [
+      "Can't justify 1-hour gym sessions during crunch periods at work",
+      "Frustrated by generic workout apps that don't adapt to your schedule",
+      "Losing hard-earned fitness every time work gets busy"
+    ],
+    "benefits": [
+      "Go from inconsistent workouts to 3-5 effective sessions per week",
+      "Transform from exhausted to energized in just 21 days",
+      "Save 5+ hours weekly compared to traditional gym routines"
+    ],
+    "features": [
+      {
+        "title": "AI Workout Generator",
+        "description": "Creates perfect 15-minute routines based on your available time, energy and equipment",
+        "icon_hint": "zap"
+      },
+      {
+        "title": "Progress Guardian",
+        "description": "Auto-adjusts intensity to prevent plateaus even with irregular workout frequency",
+        "icon_hint": "shield"
+      },
+      {
+        "title": "Executive Dashboard",
+        "description": "Tracks fitness metrics that impact work performance like energy and focus levels",
+        "icon_hint": "chart"
+      },
+      {
+        "title": "Office-Friendly Routines",
+        "description": "No-sweat options for conference room workouts and business travel",
+        "icon_hint": "users"
+      }
+    ],
+    "social_proof": [
+      {
+        "name": "Mark T.",
+        "role": "Tech Startup Founder",
+        "quote": "Gained 8lbs of muscle in 3 months despite 80-hour work weeks. FitFlow saved my health during our Series A crunch.",
+        "rating": 5
+      },
+      {
+        "name": "Priya K.",
+        "role": "Management Consultant",
+        "quote": "Finally a program that adapts to my unpredictable travel schedule. 22% stronger in 8 weeks with just hotel room workouts.",
+        "rating": 5
+      },
+      {
+        "name": "David R.",
+        "role": "Law Firm Partner",
+        "quote": "Regained my college fitness level at 42. The 15-minute lunch break workouts are game-changers for billable hours.",
+        "rating": 5
+      }
+    ],
+    "faq": [
+      {
+        "question": "How soon will I see results?",
+        "answer": "Most members report feeling more energetic within 7 days and visible changes in 3-4 weeks with our recommended 4 sessions/week."
+      },
+      {
+        "question": "What if I need to cancel?",
+        "answer": "Cancel anytime with one click. No hidden fees or retention tactics - we succeed only when you do."
+      },
+      {
+        "question": "Do I need equipment?",
+        "answer": "No. All plans include bodyweight-only options, though we offer equipment-enhanced variations if you have dumbbells or resistance bands."
+      },
+      {
+        "question": "How does the free trial work?",
+        "answer": "Get full access to all features for 7 days. No payment method required upfront - we only charge if you choose to continue."
+      }
+    ],
+    "pricing_tiers": [
+      {
+        "name": "Starter",
+        "price": 19,
+        "period": "month",
+        "features": [
+          "AI-generated workouts",
+          "Basic progress tracking",
+          "5 workout styles",
+          "Email support"
+        ],
+        "cta": "Start Free Trial",
+        "highlighted": false
+      },
+      {
+        "name": "Pro",
+        "price": 39,
+        "period": "month",
+        "features": [
+          "Everything in Starter",
+          "Live weekly coaching",
+          "Unlimited workout styles",
+          "Priority support",
+          "Executive dashboard"
+        ],
+        "cta": "Most Popular",
+        "highlighted": true
+      },
+      {
+        "name": "Executive",
+        "price": 299,
+        "period": "year",
+        "features": [
+          "Everything in Pro",
+          "Biometric assessments",
+          "Dedicated coach",
+          "Travel workout planner",
+          "Annual savings ($99)"
+        ],
+        "cta": "Save 36%",
+        "highlighted": false
+      }
+    ],
+    "urgency_text": "87% of members see results in 3 weeks \u2014 limited coaching spots available",
+    "trust_badges": [
+      "14-day money-back guarantee",
+      "Certified personal trainers",
+      "Used by 8,500+ professionals",
+      "No equipment required"
+    ],
+    "color_scheme": "emerald"
+  }
+}
